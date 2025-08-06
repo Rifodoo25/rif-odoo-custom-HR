@@ -1,0 +1,30 @@
+<odoo>
+  <record id="view_candidate_form" model="ir.ui.view">
+    <field name="name">Candidate Form</field>
+    <field name="model">recruitment.candidate</field>
+    <field name="arch" type="xml">
+      <form string="Candidate">
+        <sheet>
+          <group>
+            <field name="name"/>
+            <field name="email"/>
+            <field name="phone"/>
+            <field name="experience_years"/>
+            <field name="cv"/>
+            <field name="motivation_letter"/>
+            <field name="status"/>
+          </group>
+        </sheet>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_candidate" model="ir.actions.act_window">
+    <field name="name">Candidates</field>
+    <field name="res_model">recruitment.candidate</field>
+    <field name="view_mode">tree,form</field>
+  </record>
+
+  <menuitem id="menu_recruitment_root" name="Recruitment"/>
+  <menuitem id="menu_recruitment_candidate" name="Candidates" parent="menu_recruitment_root" action="action_candidate"/>
+</odoo>
