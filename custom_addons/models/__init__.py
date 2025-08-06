@@ -1,1 +1,1 @@
-from . import candidate
+from . import hr_applicant_inherit

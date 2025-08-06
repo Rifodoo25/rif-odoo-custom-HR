@@ -1,13 +1,13 @@
 {
-    'name': 'Recruitment',
+    'name': 'Recruitment Custom',
     'version': '1.0',
-    'summary': 'Manage recruitment process and candidates',
-    'category': 'Human Resources',
-    'depends': ['base'],
-    'data': [
-        'security/security.xml',
-        'security/ir.model.access.csv',
-        'views/candidate_form.xml',
-    ],
+    'summary': 'Customizations for Recruitment Module',
+    'depends': ['hr_recruitment'],  # Important: inherit from base recruitment
+    'data': [],
     'installable': True,
+    'application': False,
+    'data': [
+    'views/hr_applicant_view.xml',
+],
+
 }
