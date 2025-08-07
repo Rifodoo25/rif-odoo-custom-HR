@@ -1,0 +1,27 @@
+# server:
+# well like always ... run your odoo server with the virtual py envirement with the commande:
+# $.\virtual_py\Scripts\activate => this will run py virtual env
+# $python odoo-bin -r odoo -w odoo -d odoo_18  --addons-path=".\addons,..\custom_addons\"  -i base =>
+# this will create a database named odoo_18 with user and pass odoo(user of sql server) and load odoo 
+# addons "./addons" and this project "custom_addons" and init this base for it
+
+# code:
+# this folder and _manifest_.py just for testing localy
+# all the files will be moved/copied to the officially project folder of rif_odoo
+# in this folder i will have emoplyee departement and contrat models
+# security/ir.model.access.csv will never been moved/copied to the officially project folder
+
+# in my odoo_server (community version of farhat) the security.csv work only as the form of
+# 
+
+# ./_manifest_.py will only have dummy dic to run the moduel in odoo for testing and building
+# ./_init_.py well same for this file but it onlu import models from ./models
+# ./models/_init_.py same for this file but it only import models classes to be used by odoo
+# ./models/test_candidat.py same for this file it only for getting dummy data as a candidat same for it security as well and views
+# making sure that models have unique _names and _descriptions for avoiding problems
+# employee model will inherits test_candidat in delegation way
+# a relation many2one must be created in employee so it can have candidat fields in view too
+# employee will get email session and filter candidat data only rh will have list of candidats
+# for that i added a rh var to know when i modify single record data employee and when a list of them
+
+
