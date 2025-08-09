@@ -1,0 +1,4 @@
+<odoo>
+  <menuitem id="menu_rif_root" name="RIF Recruitment" sequence="10"/>
+  <menuitem id="menu_rif_sub" name="Applicants" parent="menu_rif_root" action="hr_recruitment.action_hr_job"/>
+</odoo>
