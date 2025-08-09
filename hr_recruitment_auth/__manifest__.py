@@ -6,7 +6,7 @@
         Redirects non-authenticated users to login/signup when applying for jobs
     """,
     'author': 'SiSi',
-    'depends': ['website_hr_recruitment'],
+    'depends': ['web', 'website_hr_recruitment'],
     'data': [
         'views/templates.xml',
     ],
