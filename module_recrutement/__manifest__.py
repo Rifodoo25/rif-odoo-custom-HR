@@ -1,5 +1,5 @@
 {
-    'name': 'Recruitment Custom',
+    'name': 'Recruitment Customed',
     'version': '1.0',
     'summary': 'Customizations for Recruitment RIF Module',
     'depends': ['hr_recruitment'],
