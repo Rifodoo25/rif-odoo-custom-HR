@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Template for candidate applications page -->
+    <template id="candidate_applications_template" name="My Applications">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure oe_empty">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <h1 class="mt32 mb32">Mes candidatures</h1>
+                            
+                            <t t-if="not applicants">
+                                <div class="alert alert-info">
+                                    <p>Vous n'avez aucune candidature pour le moment.</p>
+                                    <a href="/jobs" class="btn btn-primary">Voir les offres d'emploi</a>
+                                </div>
+                            </t>
+                            
+                            <t t-if="applicants">
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Poste</th>
+                                                <th>Date de candidature</th>
+                                                <th>Statut</th>
+                                                <th>Étape</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-foreach="applicants" t-as="applicant">
+                                                <tr>
+                                                    <td>
+                                                        <strong t-field="applicant.job_id.name"/>
+                                                        <br/>
+                                                        <small t-field="applicant.job_id.department_id.name"/>
+                                                    </td>
+                                                    <td>
+                                                        <span t-field="applicant.create_date" t-options="{'widget': 'date'}"/>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge" t-attf-class="badge-#{applicant.stage_id.fold and 'secondary' or 'primary'}">
+                                                            <t t-esc="applicant.stage_id.name"/>
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <t t-if="applicant.stage_id.fold">
+                                                            <span class="text-muted">Terminé</span>
+                                                        </t>
+                                                        <t t-else="">
+                                                            <span class="text-success">En cours</span>
+                                                        </t>
+                                                    </td>
+                                                    <td>
+                                                        <a t-if="applicant.job_id" 
+                                                           t-attf-href="/jobs/detail/#{applicant.job_id.id}" 
+                                                           class="btn btn-sm btn-outline-primary">
+                                                            Voir l'offre
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>
