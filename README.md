@@ -1,4 +1,5 @@
 🕒 Time Off Module
+
 📌 Overview
 The Time Off module is a custom Odoo add-on designed to streamline employee leave and time-off management.
 It enables employees to request leave, managers to approve or refuse requests, and HR to track leave balances efficiently.
