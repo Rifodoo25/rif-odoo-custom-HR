@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+  <data>
+    <menuitem id="menu_candidate_applications"
+              name="My Applications"
+              parent="website.main_menu"
+              sequence="100"
+              url="/candidate/applications"
+              groups="base.group_user"/>
+  </data>
+</odoo>
