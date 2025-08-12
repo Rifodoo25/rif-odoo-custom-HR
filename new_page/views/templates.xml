@@ -1,70 +1,296 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Template for candidate applications page -->
+    <!-- Simple template for candidate applications -->
     <template id="candidate_applications_template" name="My Applications">
         <t t-call="website.layout">
-            <div id="wrap" class="oe_structure oe_empty">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <h1 class="mt32 mb32">Mes candidatures</h1>
-                            
-                            <t t-if="not applicants">
-                                <div class="alert alert-info">
-                                    <p>Vous n'avez aucune candidature pour le moment.</p>
-                                    <a href="/jobs" class="btn btn-primary">Voir les offres d'emploi</a>
+            <div id="wrap">
+                <div class="container mt-4">
+                    <h1>Mes candidatures</h1>
+                    
+                    <!-- Display messages with improved close button -->
+                    <t t-if="message">
+                        <div t-attf-class="alert alert-#{message.get('type', 'info')} alert-dismissible" role="alert" 
+                             style="position: relative; padding-right: 50px; margin-bottom: 20px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                            <t t-esc="message.get('message', '')"/>
+                            <button type="button" 
+                                    onclick="this.parentElement.style.display='none'" 
+                                    style="position: absolute; top: 8px; right: 15px; background: none; border: none; font-size: 20px; font-weight: bold; cursor: pointer; opacity: 0.6; line-height: 1; padding: 0; color: inherit;"
+                                    onmouseover="this.style.opacity='1'; this.style.transform='scale(1.1)'"
+                                    onmouseout="this.style.opacity='0.6'; this.style.transform='scale(1)'">
+                                ×
+                            </button>
+                        </div>
+                    </t>
+                    
+                    <t t-if="not applicants">
+                        <div class="alert alert-info" style="border-radius: 5px;">
+                            <p>Vous n'avez aucune candidature pour le moment.</p>
+                            <a href="/jobs" class="btn btn-primary">Voir les offres d'emploi</a>
+                        </div>
+                    </t>
+                    
+                    <t t-if="applicants">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Poste</th>
+                                        <th>Date</th>
+                                        <th>Statut</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="applicants" t-as="applicant">
+                                        <tr>
+                                            <td>
+                                                <strong t-field="applicant.job_id.name"/>
+                                                <br/>
+                                                <small t-field="applicant.job_id.department_id.name" t-if="applicant.job_id.department_id"/>
+                                            </td>
+                                            <td>
+                                                <span t-field="applicant.create_date" t-options="{'widget': 'date'}"/>
+                                            </td>
+                                            <td>
+                                                <t t-if="applicant.stage_id.name in ['Accepté', 'Accepted', 'Hired', 'Contract Signed']">
+                                                    <span class="badge" style="background-color: #28a745 !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
+                                                        <i class="fa fa-check"></i> <t t-esc="applicant.stage_id.name"/>
+                                                    </span>
+                                                </t>
+                                                <t t-elif="applicant.stage_id.name in ['Refusé', 'Refused', 'Rejected', 'Not Suitable']">
+                                                    <span class="badge" style="background-color: #dc3545 !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
+                                                        <i class="fa fa-times"></i> <t t-esc="applicant.stage_id.name"/>
+                                                    </span>
+                                                </t>
+                                                <t t-elif="applicant.stage_id.name in ['Retiré', 'Withdrawn', 'Cancelled']">
+                                                    <span class="badge" style="background-color: #fd7e14 !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
+                                                        <i class="fa fa-ban"></i> <t t-esc="applicant.stage_id.name"/>
+                                                    </span>
+                                                </t>
+                                                <t t-elif="applicant.stage_id.name in ['En attente', 'Waiting', 'On Hold', 'Pending']">
+                                                    <span class="badge" style="background-color: #ffc107 !important; color: #212529 !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
+                                                        <i class="fa fa-hourglass-half"></i> <t t-esc="applicant.stage_id.name"/>
+                                                    </span>
+                                                </t>
+                                                <t t-elif="'interview' in applicant.stage_id.name.lower() or 'entretien' in applicant.stage_id.name.lower() or applicant.stage_id.name in ['First Interview', 'Initial Interview', 'Phone Interview']">
+                                                    <span class="badge" style="background-color: #17a2b8 !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
+                                                        <i class="fa fa-comments"></i> <t t-esc="applicant.stage_id.name"/>
+                                                    </span>
+                                                </t>
+                                                <t t-elif="applicant.stage_id.name in ['Second Interview', 'Final Interview', 'Manager Interview', 'HR Interview']">
+                                                    <span class="badge" style="background-color: #6610f2 !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
+                                                        <i class="fa fa-user-circle"></i> <t t-esc="applicant.stage_id.name"/>
+                                                    </span>
+                                                </t>
+                                                <t t-elif="applicant.stage_id.name in ['Initial Qualification', 'Qualified', 'To Schedule', 'Contract Proposal']">
+                                                    <span class="badge" style="background-color: #20c997 !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
+                                                        <i class="fa fa-check-circle"></i> <t t-esc="applicant.stage_id.name"/>
+                                                    </span>
+                                                </t>
+                                                <t t-elif="applicant.stage_id.name in ['New', 'Nouveau', 'Initial', 'Application Received', 'To Review']">
+                                                    <span class="badge" style="background-color: #6c757d !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
+                                                        <i class="fa fa-envelope"></i> <t t-esc="applicant.stage_id.name"/>
+                                                    </span>
+                                                </t>
+                                                <t t-elif="applicant.stage_id.fold">
+                                                    <span class="badge" style="background-color: #495057 !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
+                                                        <i class="fa fa-archive"></i> <t t-esc="applicant.stage_id.name"/>
+                                                    </span>
+                                                </t>
+                                                <t t-else="">
+                                                    <span class="badge" style="background-color: #007bff !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
+                                                        <i class="fa fa-clock-o"></i> <t t-esc="applicant.stage_id.name"/>
+                                                    </span>
+                                                </t>
+                                            </td>
+                                            <td>
+                                                <!-- View job offer button -->
+                                                <a t-if="applicant.job_id" 
+                                                   t-attf-href="/jobs/detail/#{applicant.job_id.id}" 
+                                                   class="btn btn-sm btn-outline-primary" 
+                                                   style="margin-right: 5px;">
+                                                    <i class="fa fa-eye"></i> Voir l'offre
+                                                </a>
+                                                
+                                                <!-- View details button -->
+                                                <a t-attf-href="/my/application/#{applicant.id}" 
+                                                   class="btn btn-sm btn-info" 
+                                                   style="margin-right: 5px;">
+                                                    <i class="fa fa-file-text-o"></i> Détails
+                                                </a>
+                                                
+                                                <!-- Withdraw button for active applications -->
+                                                <t t-if="not applicant.stage_id.fold and applicant.stage_id.name not in ['Accepté', 'Refusé', 'Retiré']">
+                                                    <a t-attf-href="/my/application/withdraw/#{applicant.id}" 
+                                                       class="btn btn-sm btn-warning" 
+                                                       style="margin-right: 5px;"
+                                                       onclick="return confirm('Êtes-vous sûr de vouloir retirer cette candidature? Vous pourrez postuler à nouveau après.')">
+                                                        <i class="fa fa-ban"></i> Retirer
+                                                    </a>
+                                                </t>
+                                                
+                                                <!-- Delete button for finished applications -->
+                                                <t t-if="applicant.stage_id.fold or applicant.stage_id.name in ['Refusé', 'Annulé', 'Retiré']">
+                                                    <a t-attf-href="/my/application/delete/#{applicant.id}" 
+                                                       class="btn btn-sm btn-danger" 
+                                                       style="margin-right: 5px;"
+                                                       onclick="return confirm('Êtes-vous sûr de vouloir supprimer définitivement cette candidature? Cette action est irréversible.')">
+                                                        <i class="fa fa-trash"></i> Supprimer
+                                                    </a>
+                                                </t>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </t>
+                </div>
+            </div>
+            
+            <!-- Simple JavaScript for alert functionality -->
+            <script>
+                // Auto-hide success messages after 5 seconds
+                setTimeout(function() {
+                    var successAlert = document.querySelector('.alert-success');
+                    if (successAlert) {
+                        successAlert.style.transition = 'opacity 0.5s';
+                        successAlert.style.opacity = '0';
+                        setTimeout(function() {
+                            if (successAlert.parentElement) {
+                                successAlert.parentElement.removeChild(successAlert);
+                            }
+                        }, 500);
+                    }
+                }, 5000);
+            </script>
+        </t>
+    </template>
+
+    <!-- Simple template for application details -->
+    <template id="application_detail_template" name="Application Details">
+        <t t-call="website.layout">
+            <div id="wrap">
+                <div class="container mt-4">
+                    <a href="/candidate/applications" class="btn btn-secondary mb-3">
+                        <i class="fa fa-arrow-left"></i> Retour à mes candidatures
+                    </a>
+                    
+                    <h1>Détails de la candidature</h1>
+                    
+                    <div class="card" style="box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                        <div class="card-header bg-primary text-white">
+                            <h3 t-field="applicant.job_id.name" style="margin: 0;"/>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong><i class="fa fa-building"></i> Département:</strong> 
+                                        <span t-field="applicant.job_id.department_id.name" t-if="applicant.job_id.department_id"/>
+                                        <span t-if="not applicant.job_id.department_id" class="text-muted">Non spécifié</span>
+                                    </p>
+                                    <p><strong><i class="fa fa-calendar"></i> Date de candidature:</strong> 
+                                        <span t-field="applicant.create_date" t-options="{'widget': 'datetime'}"/>
+                                    </p>
                                 </div>
-                            </t>
-                            
-                            <t t-if="applicants">
-                                <div class="table-responsive">
-                                    <table class="table table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th>Poste</th>
-                                                <th>Date de candidature</th>
-                                                <th>Statut</th>
-                                                <th>Étape</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <t t-foreach="applicants" t-as="applicant">
-                                                <tr>
-                                                    <td>
-                                                        <strong t-field="applicant.job_id.name"/>
-                                                        <br/>
-                                                        <small t-field="applicant.job_id.department_id.name"/>
-                                                    </td>
-                                                    <td>
-                                                        <span t-field="applicant.create_date" t-options="{'widget': 'date'}"/>
-                                                    </td>
-                                                    <td>
-                                                        <span class="badge" t-attf-class="badge-#{applicant.stage_id.fold and 'secondary' or 'primary'}">
-                                                            <t t-esc="applicant.stage_id.name"/>
-                                                        </span>
-                                                    </td>
-                                                    <td>
-                                                        <t t-if="applicant.stage_id.fold">
-                                                            <span class="text-muted">Terminé</span>
-                                                        </t>
-                                                        <t t-else="">
-                                                            <span class="text-success">En cours</span>
-                                                        </t>
-                                                    </td>
-                                                    <td>
-                                                        <a t-if="applicant.job_id" 
-                                                           t-attf-href="/jobs/detail/#{applicant.job_id.id}" 
-                                                           class="btn btn-sm btn-outline-primary">
-                                                            Voir l'offre
-                                                        </a>
-                                                    </td>
-                                                </tr>
-                                            </t>
-                                        </tbody>
-                                    </table>
+                                <div class="col-md-6">
+                                    <p><strong><i class="fa fa-info-circle"></i> Statut:</strong> 
+                                        <t t-if="applicant.stage_id.name == 'Accepté'">
+                                            <span class="badge" style="background-color: #28a745 !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
+                                                <i class="fa fa-check"></i> Accepté
+                                            </span>
+                                        </t>
+                                        <t t-elif="applicant.stage_id.name == 'Refusé'">
+                                            <span class="badge" style="background-color: #dc3545 !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
+                                                <i class="fa fa-times"></i> Refusé
+                                            </span>
+                                        </t>
+                                        <t t-elif="applicant.stage_id.name == 'Retiré'">
+                                            <span class="badge" style="background-color: #fd7e14 !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
+                                                <i class="fa fa-ban"></i> Retiré
+                                            </span>
+                                        </t>
+                                        <t t-elif="applicant.stage_id.name == 'En attente'">
+                                            <span class="badge" style="background-color: #ffc107 !important; color: #212529 !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
+                                                <i class="fa fa-hourglass-half"></i> En attente
+                                            </span>
+                                        </t>
+                                        <t t-elif="applicant.stage_id.name == 'Premier entretien' or applicant.stage_id.name == 'Entretien'">
+                                            <span class="badge" style="background-color: #17a2b8 !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
+                                                <i class="fa fa-comments"></i> <t t-esc="applicant.stage_id.name"/>
+                                            </span>
+                                        </t>
+                                        <t t-elif="applicant.stage_id.name == 'Deuxième entretien' or applicant.stage_id.name == 'Entretien final'">
+                                            <span class="badge" style="background-color: #6610f2 !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
+                                                <i class="fa fa-user-circle"></i> <t t-esc="applicant.stage_id.name"/>
+                                            </span>
+                                        </t>
+                                        <t t-elif="applicant.stage_id.name == 'Qualification initiale' or applicant.stage_id.name == 'Qualifié'">
+                                            <span class="badge" style="background-color: #20c997 !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
+                                                <i class="fa fa-check-circle"></i> <t t-esc="applicant.stage_id.name"/>
+                                            </span>
+                                        </t>
+                                        <t t-elif="applicant.stage_id.name == 'Nouveau' or applicant.stage_id.name == 'Candidature reçue'">
+                                            <span class="badge" style="background-color: #6c757d !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
+                                                <i class="fa fa-envelope"></i> <t t-esc="applicant.stage_id.name"/>
+                                            </span>
+                                        </t>
+                                        <t t-elif="applicant.stage_id.fold">
+                                            <span class="badge" style="background-color: #495057 !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
+                                                <i class="fa fa-archive"></i> <t t-esc="applicant.stage_id.name"/>
+                                            </span>
+                                        </t>
+                                        <t t-else="">
+                                            <span class="badge" style="background-color: #007bff !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
+                                                <i class="fa fa-clock-o"></i> <t t-esc="applicant.stage_id.name"/>
+                                            </span>
+                                        </t>
+                                    </p>
+                                    <p><strong><i class="fa fa-envelope"></i> Email:</strong> 
+                                        <span t-field="applicant.email_from"/>
+                                    </p>
                                 </div>
-                            </t>
+                            </div>
+                            
+                            <div class="mt-4" style="border-top: 1px solid #dee2e6; padding-top: 15px;">
+                                <!-- View job offer button -->
+                                <a t-if="applicant.job_id" 
+                                   t-attf-href="/jobs/detail/#{applicant.job_id.id}" 
+                                   class="btn btn-primary" 
+                                   style="margin-right: 10px;">
+                                    <i class="fa fa-eye"></i> Voir l'offre complète
+                                </a>
+                                
+                                <!-- Withdraw button for active applications -->
+                                <t t-if="not applicant.stage_id.fold and applicant.stage_id.name not in ['Accepté', 'Refusé', 'Retiré']">
+                                    <a t-attf-href="/my/application/withdraw/#{applicant.id}" 
+                                       class="btn btn-warning" 
+                                       style="margin-right: 10px;"
+                                       onclick="return confirm('Êtes-vous sûr de vouloir retirer cette candidature? Vous pourrez postuler à nouveau après.')">
+                                        <i class="fa fa-ban"></i> Retirer la candidature
+                                    </a>
+                                </t>
+                                
+                                <!-- Delete button for finished applications -->
+                                <t t-if="applicant.stage_id.fold or applicant.stage_id.name in ['Refusé', 'Annulé', 'Retiré']">
+                                    <a t-attf-href="/my/application/delete/#{applicant.id}" 
+                                       class="btn btn-danger" 
+                                       style="margin-right: 10px;"
+                                       onclick="return confirm('Êtes-vous sûr de vouloir supprimer définitivement cette candidature? Cette action est irréversible.')">
+                                        <i class="fa fa-trash"></i> Supprimer la candidature
+                                    </a>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Job Description -->
+                    <div class="card mt-4" t-if="applicant.job_id.description" style="box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                        <div class="card-header bg-info text-white">
+                            <h4 style="margin: 0;"><i class="fa fa-file-text"></i> Description du poste</h4>
+                        </div>
+                        <div class="card-body">
+                            <div t-field="applicant.job_id.description"/>
                         </div>
                     </div>
                 </div>
