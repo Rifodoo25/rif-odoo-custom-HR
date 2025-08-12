@@ -13,6 +13,7 @@
         'views/hr_leave_views.xml',
         
         ],
+    
     'installable': True,
     'auto_install': False,
     'application': True,

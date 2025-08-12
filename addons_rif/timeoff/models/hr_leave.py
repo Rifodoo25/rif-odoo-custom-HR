@@ -1,5 +1,5 @@
-from odoo import models, fields, _
-from odoo.exceptions import UserError
+from odoo import api, models, fields, _
+from odoo.exceptions import UserError , ValidationError
 
 class HrLeave(models.Model):
     _inherit = 'hr.leave'
@@ -90,3 +90,78 @@ class HrLeave(models.Model):
                 mail_notrack=True
             )).write(values)
         return super().write(values)
+    
+
+    def action_validate(self, check_state=True):
+        # Récupérer l'objet correspondant au congé maladie (par ID XML)
+        sick_leave_type = self.env.ref('hr_holidays.holiday_status_sl', raise_if_not_found=False)
+
+        # Limitation des congés maladie à 5 jours par année
+        for leave in self:
+            if sick_leave_type and leave.holiday_status_id.id == sick_leave_type.id:
+                year = leave.date_from.year
+                domain = [
+                    ('employee_id', '=', leave.employee_id.id),
+                    ('holiday_status_id', '=', sick_leave_type.id),
+                    ('state', 'in', ['validate', 'validate1']),
+                    ('date_from', '>=', f'{year}-01-01'),
+                    ('date_to', '<=', f'{year}-12-31'),
+                ]
+                sick_leaves = self.search(domain)
+
+                # Calcul des jours déjà pris (hors celui en cours si pas encore validé)
+                total_sick_days = sum(l.number_of_days for l in sick_leaves if l.id != leave.id)
+                if leave.state not in ['validate', 'validate1']:
+                    total_sick_days += leave.number_of_days
+
+                if total_sick_days > 5:
+                    raise ValidationError(_("Le congé maladie est limité à 5 jours par année."))
+
+        current_employee = self.env.user.employee_id
+        leaves = self._get_leaves_on_public_holiday()
+        if leaves:
+            raise ValidationError(_('The following employees are not supposed to work during that period:\n %s')
+                                % ','.join(leaves.mapped('employee_id.name')))
+        if check_state and any(
+            holiday.state not in ['confirm', 'validate1']
+            and holiday.validation_type != 'no_validation' for holiday in self
+        ):
+            raise UserError(_('Time off request must be confirmed in order to approve it.'))
+
+        self.write({'state': 'validate'})
+
+        leaves_second_approver = self.env['hr.leave']
+        leaves_first_approver = self.env['hr.leave']
+
+        for leave in self:
+            if leave.validation_type == 'both':
+                leaves_second_approver += leave
+            else:
+                leaves_first_approver += leave
+
+        leaves_second_approver.write({'second_approver_id': current_employee.id})
+        leaves_first_approver.write({'first_approver_id': current_employee.id})
+
+        self._validate_leave_request()
+        if not self.env.context.get('leave_fast_create'):
+            self.filtered(lambda holiday: holiday.validation_type != 'no_validation').activity_update()
+        return True
+    
+    @api.constrains('holiday_status_id', 'employee_id', 'date_from', 'date_to', 'number_of_days')
+    def _check_sick_leave_limit(self):
+        sick_leave_type = self.env.ref('hr_holidays.holiday_status_sl', raise_if_not_found=False)
+        for leave in self:
+            if sick_leave_type and leave.holiday_status_id.id == sick_leave_type.id:
+                year = leave.date_from.year
+                domain = [
+                    ('employee_id', '=', leave.employee_id.id),
+                    ('holiday_status_id', '=', sick_leave_type.id),
+                    ('state', 'in', ['validate', 'validate1']),
+                    ('date_from', '>=', f'{year}-01-01'),
+                    ('date_to', '<=', f'{year}-12-31'),
+                    ('id', '!=', leave.id),
+                ]
+                sick_leaves = self.search(domain)
+                total_sick_days = sum(l.number_of_days for l in sick_leaves) + leave.number_of_days
+                if total_sick_days > 5:
+                    raise ValidationError(_("Impossible d'envoyer la demande : le congé maladie est limité à 5 jours par année."))
