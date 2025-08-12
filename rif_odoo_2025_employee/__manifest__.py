@@ -24,9 +24,7 @@
         "hr_timesheet",
         
     ],
-    "data": [
-        
-    ],
+    "data": [],
     "demo": [],
     "assets": {}
 }

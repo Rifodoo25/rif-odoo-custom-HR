@@ -6,22 +6,25 @@
 # addons "./addons" and this project "custom_addons" and init this base for it
 
 # code:
-# this folder and _manifest_.py just for testing localy
-# all the files will be moved/copied to the officially project folder of rif_odoo
-# in this folder i will have emoplyee departement and contrat models
-# security/ir.model.access.csv will never been moved/copied to the officially project folder
+# installing odoo 18 modules [(orm)"base",(employee)"hr",(contrat)"hr_contract", 
+# (Optional, for digital signatures)"sign",(equipements)"maintenance",
+# (skills and CV)"hr_skills","hr_skills_slides","hr_skills_survey",(hr_attendance is #  the base presence module)'hr_attendance',(to do list)"hr_timesheet",]
 
-# in my odoo_server (community version of farhat) the security.csv work only as the form of
-# 
+#   Contract documents
+#       inside the notepage page(Details) in the field Notes upload your files
 
-# ./_manifest_.py will only have dummy dic to run the moduel in odoo for testing and building
-# ./_init_.py well same for this file but it onlu import models from ./models
-# ./models/_init_.py same for this file but it only import models classes to be used by odoo
-# ./models/test_candidat.py same for this file it only for getting dummy data as a candidat same for it security as well and views
-# making sure that models have unique _names and _descriptions for avoiding problems
-# employee model will inherits test_candidat in delegation way
-# a relation many2one must be created in employee so it can have candidat fields in view too
-# employee will get email session and filter candidat data only rh will have list of candidats
-# for that i added a rh var to know when i modify single record data employee and when a list of them
+# hide/show presence model(attendance)
+# To hide(desactive) or restrict access:
+#   Remove Access Rights
+#   Go to Settings → Users & Companies → Users.
+#   Select the user.
+#   In the Access Rights tab, under Human Resources, leave the Attendances field blank.
+#   This prevents the user from opening the module—even if it's installed. They’ll see an “Access Error”  #   if they try.
+# To show(active) or Grant Access Rights:
+#   Navigate to Settings → Users & Companies → Users.
+#   Select the user you want to give access to.
+#   In the Access Rights tab, scroll to Human Resources.
+#   Set Attendances to Administrator.
+#   This allows full access to the module, including kiosk mode, reports, and #         configuration.
 
 
