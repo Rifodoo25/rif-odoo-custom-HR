@@ -150,7 +150,10 @@ class HrLeave(models.Model):
     @api.constrains('holiday_status_id', 'employee_id', 'date_from', 'date_to', 'number_of_days')
     def _check_sick_leave_limit(self):
         sick_leave_type = self.env.ref('hr_holidays.holiday_status_sl', raise_if_not_found=False)
+        paid_leave_type = self.env.ref('hr_holidays.holiday_status_cl', raise_if_not_found=False)  # <-- Utilisation de l'ID XML
+
         for leave in self:
+            # --- Limite congé maladie ---
             if sick_leave_type and leave.holiday_status_id.id == sick_leave_type.id:
                 year = leave.date_from.year
                 domain = [
@@ -165,3 +168,19 @@ class HrLeave(models.Model):
                 total_sick_days = sum(l.number_of_days for l in sick_leaves) + leave.number_of_days
                 if total_sick_days > 5:
                     raise ValidationError(_("Impossible d'envoyer la demande : le congé maladie est limité à 5 jours par année."))
+
+            # --- Limite congé payé ---
+            if paid_leave_type and leave.holiday_status_id.id == paid_leave_type.id:
+                year = leave.date_from.year
+                domain = [
+                    ('employee_id', '=', leave.employee_id.id),
+                    ('holiday_status_id', '=', paid_leave_type.id),
+                    ('state', 'in', ['validate', 'validate1']),
+                    ('date_from', '>=', f'{year}-01-01'),
+                    ('date_to', '<=', f'{year}-12-31'),
+                    ('id', '!=', leave.id),
+                ]
+                paid_leaves = self.search(domain)
+                total_paid_days = sum(l.number_of_days for l in paid_leaves) + leave.number_of_days
+                if total_paid_days > 20:
+                    raise ValidationError(_("Impossible d'envoyer la demande : le congé payé est limité à 20 jours par année."))
