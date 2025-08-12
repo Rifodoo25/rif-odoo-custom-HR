@@ -1,0 +1,1 @@
+from . import rif_25_departement

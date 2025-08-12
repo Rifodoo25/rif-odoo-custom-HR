@@ -24,7 +24,10 @@
         "hr_timesheet",
         
     ],
-    "data": [],
+    "data": [
+        #views
+        "views/hr_department_views.xml"
+    ],
     "demo": [],
     "assets": {}
 }

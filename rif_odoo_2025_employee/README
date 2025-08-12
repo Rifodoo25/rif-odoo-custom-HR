@@ -9,6 +9,8 @@
 # installing odoo 18 modules [(orm)"base",(employee)"hr",(contrat)"hr_contract", 
 # (Optional, for digital signatures)"sign",(equipements)"maintenance",
 # (skills and CV)"hr_skills","hr_skills_slides","hr_skills_survey",(hr_attendance is #  the base presence module)'hr_attendance',(to do list)"hr_timesheet",]
+# for me its bugged i tried to add description to department so i inheritate "hr.departement" add a text # field then i inheritate the view "hr.view_department_form" department form view to add the description
+# all this should work fine but for me it dosen't show and i have 0 err in odoo and terminal
 
 #   Contract documents
 #       inside the notepage page(Details) in the field Notes upload your files
