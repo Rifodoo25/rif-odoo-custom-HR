@@ -184,3 +184,18 @@ class HrLeave(models.Model):
                 total_paid_days = sum(l.number_of_days for l in paid_leaves) + leave.number_of_days
                 if total_paid_days > 20:
                     raise ValidationError(_("Impossible d'envoyer la demande : le congé payé est limité à 20 jours par année."))
+                
+    @api.constrains('employee_id', 'holiday_status_id', 'date_from', 'date_to')
+    def _check_allocation_period(self):
+        for leave in self:
+            allocation = self.env['hr.leave.allocation'].search([
+                ('employee_id', '=', leave.employee_id.id),
+                ('holiday_status_id', '=', leave.holiday_status_id.id),
+                ('state', '=', 'validate'),
+                ('date_from', '<=', leave.date_from),
+                ('date_to', '>=', leave.date_to),
+            ], limit=1)
+            if not allocation:
+                raise ValidationError(_(
+                    "Impossible d'envoyer la demande : la période demandée dépasse la période programmée dans l'allocation."
+                ))

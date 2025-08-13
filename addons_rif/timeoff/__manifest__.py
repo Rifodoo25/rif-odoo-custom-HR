@@ -11,6 +11,8 @@
         'security/ir.model.access.csv',
         'views/leave_refuse_wizard_views.xml',
         'views/hr_leave_views.xml',
+        'views/hr_leave_allocation_mass_wizard_views.xml',
+        'views/hr_leave_allocation_mass_menu.xml',
         
         ],
     

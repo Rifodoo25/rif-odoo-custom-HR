@@ -1,0 +1,19 @@
+<odoo>
+    <record id="view_hr_leave_allocation_mass_wizard_form" model="ir.ui.view">
+        <field name="name">hr.leave.allocation.mass.wizard.form</field>
+        <field name="model">hr.leave.allocation.mass.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Mass Leave Allocation">
+                <group>
+                    <field name="holiday_status_id"/>
+                    <field name="number_of_days"/>
+                    <field name="department_ids"/>
+                </group>
+                <footer>
+                    <button name="action_allocate" string="Allocate to All" type="object" class="btn-primary"/>
+                    <button string="Cancel" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>
