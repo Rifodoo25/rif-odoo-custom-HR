@@ -1,8 +1,9 @@
 # controllers/main.py
-from odoo import http
+from odoo import http, fields
 from odoo.http import request
 from odoo.addons.website_hr_recruitment.controllers.main import WebsiteHrRecruitment
 import logging
+import base64
 
 _logger = logging.getLogger(__name__)
 
@@ -123,6 +124,197 @@ class CandidatePortal(http.Controller):
                 'message': 'Erreur lors de l\'affichage de la candidature.'
             }
             return request.redirect('/candidate/applications')
+
+    def _get_description_field_value(self, applicant):
+        """Helper method to get description from various possible fields"""
+        # Try different field names that might contain the application description
+        possible_fields = ['description', 'user_input', 'cover_letter', 'motivation', 'note']
+        
+        for field_name in possible_fields:
+            if hasattr(applicant, field_name):
+                value = getattr(applicant, field_name, None)
+                if value:
+                    return value
+        return ''
+
+    def _set_description_field_value(self, applicant, value):
+        """Helper method to set description in the correct field"""
+        # Try to find the correct field to update
+        possible_fields = ['description', 'user_input', 'cover_letter', 'motivation']
+        
+        for field_name in possible_fields:
+            if hasattr(applicant, field_name):
+                try:
+                    applicant.sudo().write({field_name: value})
+                    _logger.info(f"Successfully updated {field_name} field")
+                    return True
+                except Exception as e:
+                    _logger.warning(f"Failed to update {field_name}: {str(e)}")
+                    continue
+        
+        # If no standard field found, try to update via message_post (activity log)
+        try:
+            applicant.sudo().message_post(
+                body=f"<p><strong>Motivation/Description mise à jour:</strong></p><p>{value}</p>",
+                message_type='comment'
+            )
+            _logger.info("Description added as message/note")
+            return True
+        except Exception as e:
+            _logger.warning(f"Failed to add description as message: {str(e)}")
+        
+        # If no field found, log it but don't fail
+        _logger.warning("No description field found to update")
+        return False
+
+    @http.route(['/my/application/modify/<int:applicant_id>'], type='http', auth='user', website=True, sitemap=False, methods=['POST'])
+    def modify_application(self, applicant_id, **kwargs):
+        """Modify an existing application (only for 'New' status)"""
+        user = request.env.user
+        partner = user.partner_id
+        
+        _logger.info(f"User {user.name} attempting to modify application {applicant_id}")
+        _logger.info(f"Received form data: {kwargs}")
+        
+        try:
+            # Find the application
+            applicant = request.env['hr.applicant'].sudo().search([
+                ('id', '=', applicant_id),
+                ('partner_id', '=', partner.id)
+            ], limit=1)
+            
+            if not applicant:
+                _logger.error("Application not found or not authorized")
+                request.session['application_message'] = {
+                    'type': 'error',
+                    'message': 'Candidature non trouvée ou accès non autorisé.'
+                }
+                return request.redirect('/candidate/applications')
+            
+            # Debug current applicant data
+            _logger.info(f"Current applicant data - Name: {applicant.partner_name}, Email: {applicant.email_from}, Phone: {applicant.partner_phone}")
+            
+            # Check if modifiable
+            if applicant.stage_id.name not in ['New', 'Nouveau', 'Initial', 'Application Received', 'To Review']:
+                _logger.error(f"Application not in modifiable state: {applicant.stage_id.name}")
+                request.session['application_message'] = {
+                    'type': 'error',
+                    'message': f'Cette candidature ne peut pas être modifiée (statut: {applicant.stage_id.name}).'
+                }
+                return request.redirect('/candidate/applications')
+            
+            # Process form data
+            update_data = {
+                'partner_name': kwargs.get('partner_name', applicant.partner_name),
+                'email_from': kwargs.get('email_from', applicant.email_from),
+                'partner_phone': kwargs.get('partner_phone', applicant.partner_phone),
+            }
+            
+            _logger.info(f"Prepared update data: {update_data}")
+            
+            # Handle description separately using helper method
+            description_value = kwargs.get('description', '')
+            if description_value:
+                self._set_description_field_value(applicant, description_value)
+            
+            # Handle file upload
+            if 'attachment_ids' in request.httprequest.files:
+                uploaded_file = request.httprequest.files['attachment_ids']
+                if uploaded_file and uploaded_file.filename:
+                    try:
+                        # Validate and process file
+                        file_content = uploaded_file.read()
+                        if len(file_content) > 10 * 1024 * 1024:
+                            raise ValueError("Fichier trop volumineux (>10MB)")
+                        
+                        # Validate file type
+                        allowed_extensions = ['.pdf', '.doc', '.docx', '.txt', '.rtf']
+                        file_ext = '.' + uploaded_file.filename.split('.')[-1].lower()
+                        if file_ext not in allowed_extensions:
+                            raise ValueError("Type de fichier non autorisé. Utilisez: PDF, DOC, DOCX, TXT, RTF")
+                        
+                        # Remove old CV attachments (keep other attachments)
+                        old_cv_attachments = request.env['ir.attachment'].sudo().search([
+                            ('res_model', '=', 'hr.applicant'),
+                            ('res_id', '=', applicant.id),
+                            ('name', 'ilike', '.pdf'),
+                            ('name', 'ilike', '.doc'),
+                        ])
+                        if not old_cv_attachments:
+                            # Fallback: remove attachments with 'cv' or 'resume' in name
+                            old_cv_attachments = request.env['ir.attachment'].sudo().search([
+                                ('res_model', '=', 'hr.applicant'),
+                                ('res_id', '=', applicant.id),
+                                '|', ('name', 'ilike', 'cv'),
+                                ('name', 'ilike', 'resume')
+                            ])
+                        old_cv_attachments.unlink()
+                        
+                        # Create new attachment
+                        attachment = request.env['ir.attachment'].sudo().create({
+                            'name': uploaded_file.filename,
+                            'datas': base64.b64encode(file_content),
+                            'res_model': 'hr.applicant',
+                            'res_id': applicant.id,
+                            'mimetype': uploaded_file.content_type,
+                            'type': 'binary',
+                        })
+                        
+                        # Try to link attachment to applicant
+                        try:
+                            # Method 1: Direct field update
+                            current_attachments = applicant.attachment_ids.ids if hasattr(applicant, 'attachment_ids') else []
+                            update_data['attachment_ids'] = [(6, 0, current_attachments + [attachment.id])]
+                        except:
+                            # Method 2: Try alternative field names
+                            for att_field in ['attachment_ids', 'resume_ids', 'cv_ids']:
+                                if hasattr(applicant, att_field):
+                                    try:
+                                        current_attachments = getattr(applicant, att_field).ids
+                                        update_data[att_field] = [(6, 0, current_attachments + [attachment.id])]
+                                        break
+                                    except:
+                                        continue
+                        
+                        _logger.info(f"New CV uploaded successfully: {uploaded_file.filename}")
+                        
+                    except Exception as file_error:
+                        _logger.error(f"File upload error: {str(file_error)}")
+                        request.session['application_message'] = {
+                            'type': 'error',
+                            'message': f'Erreur fichier: {str(file_error)}'
+                        }
+                        return request.redirect('/candidate/applications')
+            
+            # Update partner info
+            partner.sudo().write({
+                'name': update_data['partner_name'],
+                'email': update_data['email_from'],
+                'phone': update_data['partner_phone'],
+            })
+            
+            # Update application
+            applicant.sudo().write(update_data)
+            
+            # Add modification note using helper method
+            current_description = self._get_description_field_value(applicant)
+            modification_note = f"\n\n--- Modifié le {fields.Datetime.now()} ---"
+            self._set_description_field_value(applicant, current_description + modification_note)
+            
+            _logger.info("Application updated successfully")
+            request.session['application_message'] = {
+                'type': 'success',
+                'message': f'Candidature pour "{applicant.job_id.name}" mise à jour!'
+            }
+            
+        except Exception as e:
+            _logger.error(f"Modification error: {str(e)}", exc_info=True)
+            request.session['application_message'] = {
+                'type': 'error',
+                'message': f'Erreur: {str(e)}'
+            }
+        
+        return request.redirect('/candidate/applications')
     
     @http.route(['/my/application/withdraw/<int:applicant_id>'], type='http', auth='user', website=True, sitemap=False)
     def withdraw_application(self, applicant_id, **kwargs):
@@ -187,28 +379,14 @@ class CandidatePortal(http.Controller):
                 'stage_id': withdrawn_stage.id,
             })
             
-            # Add a note to the description (using the correct field)
-            # Try to add a withdrawal note - use different fields depending on what's available
+            # Add a note using helper method
             from datetime import datetime
             withdrawal_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             withdrawal_note = f"--- Candidature retirée par le candidat le {withdrawal_date} ---"
             
-            # Try to add note to description field if it exists
             try:
-                if hasattr(applicant, 'description'):
-                    current_description = applicant.description or ''
-                    applicant.sudo().write({
-                        'description': current_description + f"\n\n{withdrawal_note}"
-                    })
-                elif hasattr(applicant, 'user_input'):
-                    # Some versions use user_input field
-                    current_input = applicant.user_input or ''
-                    applicant.sudo().write({
-                        'user_input': current_input + f"\n\n{withdrawal_note}"
-                    })
-                else:
-                    # If no description field, we'll just log it
-                    _logger.info(f"Added withdrawal note for application {applicant_id}: {withdrawal_note}")
+                current_description = self._get_description_field_value(applicant)
+                self._set_description_field_value(applicant, current_description + f"\n\n{withdrawal_note}")
             except Exception as note_error:
                 # If adding note fails, just log it - don't break the withdrawal process
                 _logger.warning(f"Could not add withdrawal note: {str(note_error)}")

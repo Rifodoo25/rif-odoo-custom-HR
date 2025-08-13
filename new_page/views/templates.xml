@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Simple template for candidate applications -->
+    <!-- Updated template for candidate applications with fixed status colors -->
     <template id="candidate_applications_template" name="My Applications">
         <t t-call="website.layout">
             <div id="wrap">
@@ -52,54 +52,49 @@
                                                 <span t-field="applicant.create_date" t-options="{'widget': 'date'}"/>
                                             </td>
                                             <td>
-                                                <t t-if="applicant.stage_id.name in ['Accepté', 'Accepted', 'Hired', 'Contract Signed']">
-                                                    <span class="badge" style="background-color: #28a745 !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
-                                                        <i class="fa fa-check"></i> <t t-esc="applicant.stage_id.name"/>
-                                                    </span>
-                                                </t>
-                                                <t t-elif="applicant.stage_id.name in ['Refusé', 'Refused', 'Rejected', 'Not Suitable']">
-                                                    <span class="badge" style="background-color: #dc3545 !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
-                                                        <i class="fa fa-times"></i> <t t-esc="applicant.stage_id.name"/>
-                                                    </span>
-                                                </t>
-                                                <t t-elif="applicant.stage_id.name in ['Retiré', 'Withdrawn', 'Cancelled']">
-                                                    <span class="badge" style="background-color: #fd7e14 !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
-                                                        <i class="fa fa-ban"></i> <t t-esc="applicant.stage_id.name"/>
-                                                    </span>
-                                                </t>
-                                                <t t-elif="applicant.stage_id.name in ['En attente', 'Waiting', 'On Hold', 'Pending']">
-                                                    <span class="badge" style="background-color: #ffc107 !important; color: #212529 !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
-                                                        <i class="fa fa-hourglass-half"></i> <t t-esc="applicant.stage_id.name"/>
-                                                    </span>
-                                                </t>
-                                                <t t-elif="'interview' in applicant.stage_id.name.lower() or 'entretien' in applicant.stage_id.name.lower() or applicant.stage_id.name in ['First Interview', 'Initial Interview', 'Phone Interview']">
-                                                    <span class="badge" style="background-color: #17a2b8 !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
-                                                        <i class="fa fa-comments"></i> <t t-esc="applicant.stage_id.name"/>
-                                                    </span>
-                                                </t>
-                                                <t t-elif="applicant.stage_id.name in ['Second Interview', 'Final Interview', 'Manager Interview', 'HR Interview']">
-                                                    <span class="badge" style="background-color: #6610f2 !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
-                                                        <i class="fa fa-user-circle"></i> <t t-esc="applicant.stage_id.name"/>
-                                                    </span>
-                                                </t>
-                                                <t t-elif="applicant.stage_id.name in ['Initial Qualification', 'Qualified', 'To Schedule', 'Contract Proposal']">
-                                                    <span class="badge" style="background-color: #20c997 !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
-                                                        <i class="fa fa-check-circle"></i> <t t-esc="applicant.stage_id.name"/>
-                                                    </span>
-                                                </t>
-                                                <t t-elif="applicant.stage_id.name in ['New', 'Nouveau', 'Initial', 'Application Received', 'To Review']">
+                                                <t t-if="applicant.stage_id.name == 'Nouveau'">
                                                     <span class="badge" style="background-color: #6c757d !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
-                                                        <i class="fa fa-envelope"></i> <t t-esc="applicant.stage_id.name"/>
+                                                        <i class="fa fa-file-text"></i> Nouveau
                                                     </span>
                                                 </t>
-                                                <t t-elif="applicant.stage_id.fold">
-                                                    <span class="badge" style="background-color: #495057 !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
-                                                        <i class="fa fa-archive"></i> <t t-esc="applicant.stage_id.name"/>
+                                                <t t-elif="applicant.stage_id.name == 'Qualification initiale'">
+                                                    <span class="badge" style="background-color: #17a2b8 !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
+                                                        <i class="fa fa-search"></i> Qualification initiale
+                                                    </span>
+                                                </t>
+                                                <t t-elif="applicant.stage_id.name == 'Consultant'">
+                                                    <span class="badge" style="background-color: #20c997 !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
+                                                        <i class="fa fa-user-md"></i> Consultant
+                                                    </span>
+                                                </t>
+                                                <t t-elif="applicant.stage_id.name == 'Premier entretien'">
+                                                    <span class="badge" style="background-color: #007bff !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
+                                                        <i class="fa fa-comments"></i> Premier entretien
+                                                    </span>
+                                                </t>
+                                                <t t-elif="applicant.stage_id.name == 'Second entretien'">
+                                                    <span class="badge" style="background-color: #6610f2 !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
+                                                        <i class="fa fa-comments"></i> Second entretien
+                                                    </span>
+                                                </t>
+                                                <t t-elif="applicant.stage_id.name == 'Proposition de contrat'">
+                                                    <span class="badge" style="background-color: #ffc107 !important; color: #212529 !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
+                                                        <i class="fa fa-file-contract"></i> Proposition de contrat
+                                                    </span>
+                                                </t>
+                                                <t t-elif="applicant.stage_id.name == 'Contrat signé'">
+                                                    <span class="badge" style="background-color: #28a745 !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
+                                                        <i class="fa fa-check-circle"></i> Contrat signé
+                                                    </span>
+                                                </t>
+                                                <t t-elif="applicant.stage_id.name == 'Retiré'">
+                                                    <span class="badge" style="background-color: #dc3545 !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
+                                                        <i class="fa fa-ban"></i> Retiré
                                                     </span>
                                                 </t>
                                                 <t t-else="">
-                                                    <span class="badge" style="background-color: #007bff !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
-                                                        <i class="fa fa-clock-o"></i> <t t-esc="applicant.stage_id.name"/>
+                                                    <span class="badge" style="background-color: #6c757d !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
+                                                        <i class="fa fa-question-circle"></i> <t t-esc="applicant.stage_id.name"/>
                                                     </span>
                                                 </t>
                                             </td>
@@ -119,8 +114,23 @@
                                                     <i class="fa fa-file-text-o"></i> Détails
                                                 </a>
                                                 
+                                                <!-- Modifier button - only for "New" status -->
+                                                <t t-if="applicant.stage_id.name in ['Nouveau']">
+                                                    <button type="button" 
+                                                            class="btn btn-sm btn-success" 
+                                                            style="margin-right: 5px;"
+                                                            onclick="openModifyModal(this)"
+                                                            t-att-data-applicant-id="applicant.id"
+                                                            t-att-data-applicant-name="applicant.partner_name"
+                                                            t-att-data-applicant-email="applicant.email_from"
+                                                            t-att-data-applicant-phone="applicant.partner_phone"
+                                                            t-att-data-job-name="applicant.job_id.name">
+                                                        <i class="fa fa-edit"></i> Modifier
+                                                    </button>
+                                                </t>
+                                                
                                                 <!-- Withdraw button for active applications -->
-                                                <t t-if="not applicant.stage_id.fold and applicant.stage_id.name not in ['Accepté', 'Refusé', 'Retiré']">
+                                                <t t-if="applicant.stage_id.name not in ['Contrat signé', 'Retiré']">
                                                     <a t-attf-href="/my/application/withdraw/#{applicant.id}" 
                                                        class="btn btn-sm btn-warning" 
                                                        style="margin-right: 5px;"
@@ -130,7 +140,7 @@
                                                 </t>
                                                 
                                                 <!-- Delete button for finished applications -->
-                                                <t t-if="applicant.stage_id.fold or applicant.stage_id.name in ['Refusé', 'Annulé', 'Retiré']">
+                                                <t t-if="applicant.stage_id.name in ['Contrat signé', 'Retiré']">
                                                     <a t-attf-href="/my/application/delete/#{applicant.id}" 
                                                        class="btn btn-sm btn-danger" 
                                                        style="margin-right: 5px;"
@@ -148,7 +158,85 @@
                 </div>
             </div>
             
-            <!-- Simple JavaScript for alert functionality -->
+            <!-- Modal for modifying application -->
+            <div class="modal fade" id="modifyApplicationModal" tabindex="-1" role="dialog" aria-labelledby="modifyApplicationModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                        <form id="modifyApplicationForm" method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <input type="hidden" id="applicant_id" name="applicant_id"/>
+                            
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modifyApplicationModalLabel">
+                                    <i class="fa fa-edit"></i> Modifier ma candidature
+                                </h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">×</span>
+                                </button>
+                            </div>
+                            
+                            <div class="modal-body">
+                                <div class="alert alert-info">
+                                    <i class="fa fa-info-circle"></i> Vous pouvez modifier votre candidature pour le poste: <strong id="modal-job-name"></strong>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="partner_name" class="required">Nom complet *</label>
+                                            <input type="text" class="form-control" id="partner_name" name="partner_name" required="required"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="email_from" class="required">Email *</label>
+                                            <input type="email" class="form-control" id="email_from" name="email_from" required="required"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="partner_phone">Téléphone</label>
+                                            <input type="text" class="form-control" id="partner_phone" name="partner_phone"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="linkedin_profile">Profil LinkedIn</label>
+                                            <input type="url" class="form-control" id="linkedin_profile" name="linkedin_profile" placeholder="https://www.linkedin.com/in/votre-profil"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="description">Lettre de motivation</label>
+                                    <textarea class="form-control" id="description" name="description" rows="5" placeholder="Décrivez pourquoi vous êtes intéressé par ce poste et ce que vous pouvez apporter à notre équipe..."></textarea>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="attachment_ids">CV (optionnel - vous pouvez uploader un nouveau CV)</label>
+                                    <input type="file" class="form-control-file" id="attachment_ids" name="attachment_ids" accept=".pdf,.doc,.docx"/>
+                                    <small class="form-text text-muted">Formats acceptés: PDF, DOC, DOCX. Taille max: 10MB</small>
+                                    <div id="current-cv-info" style="margin-top: 10px;" class="text-info"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                    <i class="fa fa-times"></i> Annuler
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fa fa-save"></i> Sauvegarder les modifications
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- JavaScript for modal and alert functionality -->
             <script>
                 // Auto-hide success messages after 5 seconds
                 setTimeout(function() {
@@ -163,11 +251,47 @@
                         }, 500);
                     }
                 }, 5000);
+                
+                // Function to open the modify modal
+                function openModifyModal(button) {
+                    // Get data from button attributes
+                    var applicantId = button.getAttribute('data-applicant-id');
+                    var applicantName = button.getAttribute('data-applicant-name');
+                    var applicantEmail = button.getAttribute('data-applicant-email');
+                    var applicantPhone = button.getAttribute('data-applicant-phone') || '';
+                    var jobName = button.getAttribute('data-job-name');
+                    
+                    // Populate the form
+                    document.getElementById('applicant_id').value = applicantId;
+                    document.getElementById('partner_name').value = applicantName || '';
+                    document.getElementById('email_from').value = applicantEmail || '';
+                    document.getElementById('partner_phone').value = applicantPhone;
+                    document.getElementById('modal-job-name').textContent = jobName;
+                    
+                    // Set form action
+                    document.getElementById('modifyApplicationForm').action = '/my/application/modify/' + applicantId;
+                    
+                    // Show current CV info if exists
+                    var cvInfo = document.getElementById('current-cv-info');
+                    cvInfo.innerHTML = '<i class="fa fa-file-o"></i> Un CV est déjà attaché à votre candidature. Vous pouvez en uploader un nouveau pour le remplacer.';
+                    
+                    // Show the modal
+                    $('#modifyApplicationModal').modal('show');
+                }
+                
+                // Handle form submission
+                document.getElementById('modifyApplicationForm').addEventListener('submit', function(e) {
+                    // Show loading state
+                    var submitBtn = this.querySelector('button[type="submit"]');
+                    var originalText = submitBtn.innerHTML;
+                    submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Sauvegarde...';
+                    submitBtn.disabled = true;
+                });
             </script>
         </t>
     </template>
 
-    <!-- Simple template for application details -->
+    <!-- Application detail template with updated status colors -->
     <template id="application_detail_template" name="Application Details">
         <t t-call="website.layout">
             <div id="wrap">
@@ -195,54 +319,49 @@
                                 </div>
                                 <div class="col-md-6">
                                     <p><strong><i class="fa fa-info-circle"></i> Statut:</strong> 
-                                        <t t-if="applicant.stage_id.name == 'Accepté'">
-                                            <span class="badge" style="background-color: #28a745 !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
-                                                <i class="fa fa-check"></i> Accepté
+                                        <t t-if="applicant.stage_id.name == 'Nouveau'">
+                                            <span class="badge" style="background-color: #6c757d !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
+                                                <i class="fa fa-file-text"></i> Nouveau
                                             </span>
                                         </t>
-                                        <t t-elif="applicant.stage_id.name == 'Refusé'">
-                                            <span class="badge" style="background-color: #dc3545 !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
-                                                <i class="fa fa-times"></i> Refusé
+                                        <t t-elif="applicant.stage_id.name == 'Qualification initiale'">
+                                            <span class="badge" style="background-color: #17a2b8 !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
+                                                <i class="fa fa-search"></i> Qualification initiale
+                                            </span>
+                                        </t>
+                                        <t t-elif="applicant.stage_id.name == 'Consultant'">
+                                            <span class="badge" style="background-color: #20c997 !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
+                                                <i class="fa fa-user-md"></i> Consultant
+                                            </span>
+                                        </t>
+                                        <t t-elif="applicant.stage_id.name == 'Premier entretien'">
+                                            <span class="badge" style="background-color: #007bff !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
+                                                <i class="fa fa-comments"></i> Premier entretien
+                                            </span>
+                                        </t>
+                                        <t t-elif="applicant.stage_id.name == 'Second entretien'">
+                                            <span class="badge" style="background-color: #6610f2 !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
+                                                <i class="fa fa-comments"></i> Second entretien
+                                            </span>
+                                        </t>
+                                        <t t-elif="applicant.stage_id.name == 'Proposition de contrat'">
+                                            <span class="badge" style="background-color: #ffc107 !important; color: #212529 !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
+                                                <i class="fa fa-file-contract"></i> Proposition de contrat
+                                            </span>
+                                        </t>
+                                        <t t-elif="applicant.stage_id.name == 'Contrat signé'">
+                                            <span class="badge" style="background-color: #28a745 !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
+                                                <i class="fa fa-check-circle"></i> Contrat signé
                                             </span>
                                         </t>
                                         <t t-elif="applicant.stage_id.name == 'Retiré'">
-                                            <span class="badge" style="background-color: #fd7e14 !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
+                                            <span class="badge" style="background-color: #dc3545 !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
                                                 <i class="fa fa-ban"></i> Retiré
                                             </span>
                                         </t>
-                                        <t t-elif="applicant.stage_id.name == 'En attente'">
-                                            <span class="badge" style="background-color: #ffc107 !important; color: #212529 !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
-                                                <i class="fa fa-hourglass-half"></i> En attente
-                                            </span>
-                                        </t>
-                                        <t t-elif="applicant.stage_id.name == 'Premier entretien' or applicant.stage_id.name == 'Entretien'">
-                                            <span class="badge" style="background-color: #17a2b8 !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
-                                                <i class="fa fa-comments"></i> <t t-esc="applicant.stage_id.name"/>
-                                            </span>
-                                        </t>
-                                        <t t-elif="applicant.stage_id.name == 'Deuxième entretien' or applicant.stage_id.name == 'Entretien final'">
-                                            <span class="badge" style="background-color: #6610f2 !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
-                                                <i class="fa fa-user-circle"></i> <t t-esc="applicant.stage_id.name"/>
-                                            </span>
-                                        </t>
-                                        <t t-elif="applicant.stage_id.name == 'Qualification initiale' or applicant.stage_id.name == 'Qualifié'">
-                                            <span class="badge" style="background-color: #20c997 !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
-                                                <i class="fa fa-check-circle"></i> <t t-esc="applicant.stage_id.name"/>
-                                            </span>
-                                        </t>
-                                        <t t-elif="applicant.stage_id.name == 'Nouveau' or applicant.stage_id.name == 'Candidature reçue'">
-                                            <span class="badge" style="background-color: #6c757d !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
-                                                <i class="fa fa-envelope"></i> <t t-esc="applicant.stage_id.name"/>
-                                            </span>
-                                        </t>
-                                        <t t-elif="applicant.stage_id.fold">
-                                            <span class="badge" style="background-color: #495057 !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
-                                                <i class="fa fa-archive"></i> <t t-esc="applicant.stage_id.name"/>
-                                            </span>
-                                        </t>
                                         <t t-else="">
-                                            <span class="badge" style="background-color: #007bff !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
-                                                <i class="fa fa-clock-o"></i> <t t-esc="applicant.stage_id.name"/>
+                                            <span class="badge" style="background-color: #6c757d !important; color: white !important; padding: 6px 12px; border-radius: 15px; font-size: 0.85em;">
+                                                <i class="fa fa-question-circle"></i> <t t-esc="applicant.stage_id.name"/>
                                             </span>
                                         </t>
                                     </p>
@@ -262,7 +381,7 @@
                                 </a>
                                 
                                 <!-- Withdraw button for active applications -->
-                                <t t-if="not applicant.stage_id.fold and applicant.stage_id.name not in ['Accepté', 'Refusé', 'Retiré']">
+                                <t t-if="applicant.stage_id.name not in ['Contrat signé', 'Retiré']">
                                     <a t-attf-href="/my/application/withdraw/#{applicant.id}" 
                                        class="btn btn-warning" 
                                        style="margin-right: 10px;"
@@ -272,7 +391,7 @@
                                 </t>
                                 
                                 <!-- Delete button for finished applications -->
-                                <t t-if="applicant.stage_id.fold or applicant.stage_id.name in ['Refusé', 'Annulé', 'Retiré']">
+                                <t t-if="applicant.stage_id.name in ['Contrat signé', 'Retiré']">
                                     <a t-attf-href="/my/application/delete/#{applicant.id}" 
                                        class="btn btn-danger" 
                                        style="margin-right: 10px;"
