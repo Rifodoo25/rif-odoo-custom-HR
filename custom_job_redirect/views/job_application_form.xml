@@ -1,0 +1,238 @@
+<odoo>
+    <template id="custom_job_application_form" name="Custom Job Application Form">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure oe_empty">
+                <section class="container mt-4">
+                    <div class="row">
+                        <div class="col-lg-8">
+                            <h1 class="mb-4">Formulaire de recrutement</h1>
+                            
+                            <form action="/jobs/apply" method="POST" enctype="multipart/form-data" class="js_website_submit_form">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                <input type="hidden" name="job_id" t-att-value="job.id"/>
+                                
+                                <div class="row">
+                                    <!-- Left Column -->
+                                    <div class="col-md-6">
+                                        <!-- Name -->
+                                        <div class="mb-3">
+                                            <label for="partner_name" class="form-label">Nom et Prénom *</label>
+                                            <input type="text" class="form-control" id="partner_name" name="partner_name" 
+                                                   t-att-value="form_data.get('partner_name', '')" required="required"/>
+                                            <div t-if="error.get('partner_name')" class="text-danger">
+                                                <t t-esc="error.get('partner_name')"/>
+                                            </div>
+                                        </div>
+
+                                        <!-- Email -->
+                                        <div class="mb-3">
+                                            <label for="email_from" class="form-label">Votre e-mail *</label>
+                                            <input type="email" class="form-control" id="email_from" name="email_from" 
+                                                   t-att-value="form_data.get('email_from', '')" required="required"/>
+                                            <div t-if="error.get('email_from')" class="text-danger">
+                                                <t t-esc="error.get('email_from')"/>
+                                            </div>
+                                        </div>
+
+                                        <!-- Phone -->
+                                        <div class="mb-3">
+                                            <label for="phone" class="form-label">Votre numéro de téléphone *</label>
+                                            <input type="tel" class="form-control" id="phone" name="phone" 
+                                                   t-att-value="form_data.get('phone', '')" required="required"/>
+                                            <div t-if="error.get('phone')" class="text-danger">
+                                                <t t-esc="error.get('phone')"/>
+                                            </div>
+                                        </div>
+
+                                        <!-- University -->
+                                        <div class="mb-3">
+                                            <label for="university" class="form-label">Université *</label>
+                                            <input type="text" class="form-control" id="university" name="university" 
+                                                   t-att-value="form_data.get('university', '')" required="required"/>
+                                            <div t-if="error.get('university')" class="text-danger">
+                                                <t t-esc="error.get('university')"/>
+                                            </div>
+                                        </div>
+
+                                        <!-- Education Level -->
+                                        <div class="mb-3">
+                                            <label for="education_level" class="form-label">Niveau d'études *</label>
+                                            <select class="form-control" id="education_level" name="education_level" required="required">
+                                                <option value="">Sélectionner...</option>
+                                                <option value="bac" t-att-selected="form_data.get('education_level') == 'bac'">Baccalauréat</option>
+                                                <option value="bac+1" t-att-selected="form_data.get('education_level') == 'bac+1'">Bac+1</option>
+                                                <option value="bac+2" t-att-selected="form_data.get('education_level') == 'bac+2'">Bac+2</option>
+                                                <option value="bac+3" t-att-selected="form_data.get('education_level') == 'bac+3'">Bac+3 (Licence)</option>
+                                                <option value="bac+4" t-att-selected="form_data.get('education_level') == 'bac+4'">Bac+4</option>
+                                                <option value="bac+5" t-att-selected="form_data.get('education_level') == 'bac+5'">Bac+5 (Master)</option>
+                                                <option value="bac+6" t-att-selected="form_data.get('education_level') == 'bac+6'">Bac+6</option>
+                                                <option value="bac+7" t-att-selected="form_data.get('education_level') == 'bac+7'">Bac+7</option>
+                                                <option value="bac+8" t-att-selected="form_data.get('education_level') == 'bac+8'">Bac+8 (Doctorat)</option>
+                                            </select>
+                                            <div t-if="error.get('education_level')" class="text-danger">
+                                                <t t-esc="error.get('education_level')"/>
+                                            </div>
+                                        </div>
+
+                                        <!-- Speciality -->
+                                        <div class="mb-3">
+                                            <label for="speciality" class="form-label">Spécialité *</label>
+                                            <input type="text" class="form-control" id="speciality" name="speciality" 
+                                                   t-att-value="form_data.get('speciality', '')" required="required"/>
+                                            <div t-if="error.get('speciality')" class="text-danger">
+                                                <t t-esc="error.get('speciality')"/>
+                                            </div>
+                                        </div>
+
+                                        <!-- Stage Type -->
+                                        <div class="mb-3">
+                                            <label for="stage_type" class="form-label">Stage *</label>
+                                            <select class="form-control" id="stage_type" name="stage_type" required="required">
+                                                <option value="">PFE</option>
+                                                <option value="pfe" t-att-selected="form_data.get('stage_type') == 'pfe'">PFE (Projet de Fin d'Études)</option>
+                                                <option value="stage_ete" t-att-selected="form_data.get('stage_type') == 'stage_ete'">Stage d'été</option>
+                                                <option value="stage_ouvrier" t-att-selected="form_data.get('stage_type') == 'stage_ouvrier'">Stage ouvrier</option>
+                                                <option value="stage_technicien" t-att-selected="form_data.get('stage_type') == 'stage_technicien'">Stage technicien</option>
+                                                <option value="autre" t-att-selected="form_data.get('stage_type') == 'autre'">Autre</option>
+                                            </select>
+                                            <div t-if="error.get('stage_type')" class="text-danger">
+                                                <t t-esc="error.get('stage_type')"/>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Right Column -->
+                                    <div class="col-md-6">
+                                        <!-- Stage Agreement -->
+                                        <div class="mb-3">
+                                            <label for="stage_agreement" class="form-label">Convention de stage *</label>
+                                            <select class="form-control" id="stage_agreement" name="stage_agreement" required="required">
+                                                <option value="">Oui</option>
+                                                <option value="Oui" t-att-selected="form_data.get('stage_agreement') == 'Oui'">Oui</option>
+                                                <option value="Non" t-att-selected="form_data.get('stage_agreement') == 'Non'">Non</option>
+                                            </select>
+                                            <div t-if="error.get('stage_agreement')" class="text-danger">
+                                                <t t-esc="error.get('stage_agreement')"/>
+                                            </div>
+                                        </div>
+
+                                        <!-- Start Date -->
+                                        <div class="mb-3">
+                                            <label for="start_date" class="form-label">Date de début *</label>
+                                            <input type="date" class="form-control" id="start_date" name="start_date" 
+                                                   t-att-value="form_data.get('start_date', '')" required="required"/>
+                                            <div t-if="error.get('start_date')" class="text-danger">
+                                                <t t-esc="error.get('start_date')"/>
+                                            </div>
+                                        </div>
+
+                                        <!-- End Date -->
+                                        <div class="mb-3">
+                                            <label for="end_date" class="form-label">Date de Fin *</label>
+                                            <input type="date" class="form-control" id="end_date" name="end_date" 
+                                                   t-att-value="form_data.get('end_date', '')" required="required"/>
+                                            <div t-if="error.get('end_date')" class="text-danger">
+                                                <t t-esc="error.get('end_date')"/>
+                                            </div>
+                                        </div>
+
+                                        <!-- Duration -->
+                                        <div class="mb-3">
+                                            <label for="duration" class="form-label">Durée *</label>
+                                            <input type="text" class="form-control" id="duration" name="duration" 
+                                                   t-att-value="form_data.get('duration', '')" placeholder="ex: 3 mois" required="required"/>
+                                            <div t-if="error.get('duration')" class="text-danger">
+                                                <t t-esc="error.get('duration')"/>
+                                            </div>
+                                        </div>
+
+                                        <!-- LinkedIn Profile -->
+                                        <div class="mb-3">
+                                            <label for="linkedin_profile" class="form-label">Profil LinkedIn</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">
+                                                    <i class="fab fa-linkedin text-primary"></i>
+                                                </span>
+                                                <input type="url" class="form-control" id="linkedin_profile" name="linkedin_profile" 
+                                                       placeholder="https://www.linkedin.com/in/foodoo" 
+                                                       t-att-value="form_data.get('linkedin_profile', '')"/>
+                                            </div>
+                                        </div>
+
+                                        <!-- CV Upload -->
+                                        <div class="mb-3">
+                                            <label for="cv_file" class="form-label">Curriculum vitae</label>
+                                            <input type="file" class="form-control" id="cv_file" name="cv_file" accept=".pdf,.doc,.docx"/>
+                                            <div class="form-text">Fournissez un CV ou un profil LinkedIn</div>
+                                            <div t-if="error.get('cv_file')" class="text-danger">
+                                                <t t-esc="error.get('cv_file')"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- General Error -->
+                                <div t-if="error.get('general')" class="alert alert-danger">
+                                    <t t-esc="error.get('general')"/>
+                                </div>
+
+                                <!-- Submit Button -->
+                                <div class="mb-3">
+                                    <button type="submit" class="btn btn-primary btn-lg px-5">
+                                        J'ai de la chance
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Right Sidebar - Job Description -->
+                        <div class="col-lg-4">
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">📝 Description du poste</h5>
+                                </div>
+                                <div class="card-body">
+                                    <h6 class="text-primary">Poste</h6>
+                                    <p t-field="job.name" class="mb-3"/>
+                                    
+                                    <h6 class="text-primary">Lieu de travail</h6>
+                                    <p t-field="job.address_id.name" class="mb-3"/>
+                                    
+                                    <h6 class="text-primary">Process</h6>
+                                    <ul class="list-unstyled">
+                                        <li>1 entretien téléphonique</li>
+                                        <li>1 entretien RH en ligne</li>
+                                        <li>1 entretien technique en ligne</li>
+                                    </ul>
+                                    
+                                    <p class="small text-muted">
+                                        Déroulement de stage en télétravail
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </t>
+    </template>
+
+    <template id="application_success" name="Application Success">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure oe_empty">
+                <section class="container mt-4">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-8 text-center">
+                            <div class="alert alert-success">
+                                <h2 class="mb-3">✅ Candidature envoyée avec succès!</h2>
+                                <p class="lead">Merci pour votre candidature au poste de <strong t-field="job.name"/>.</p>
+                                <p>Nous examinerons votre profil et vous contacterons dans les plus brefs délais.</p>
+                                <a href="/jobs" class="btn btn-primary mt-3">Voir d'autres offres</a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </t>
+    </template>
+</odoo> 
