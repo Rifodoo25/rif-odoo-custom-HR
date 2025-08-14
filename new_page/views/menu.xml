@@ -1,11 +1,12 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-  <data>
-    <menuitem id="menu_candidate_applications"
-              name="My Applications"
-              parent="website.main_menu"
-              sequence="100"
-              url="/candidate/applications"
-              groups="base.group_user"/>
-  </data>
+    <data>
+        <!-- Create website menu using data records -->
+        <record id="menu_candidate_applications" model="website.menu">
+            <field name="name">Mes candidatures</field>
+            <field name="url">/candidate/applications</field>
+            <field name="parent_id" ref="website.main_menu"/>
+            <field name="sequence">50</field>
+            <field name="website_id"></field>
+        </record>
+    </data>
 </odoo>
