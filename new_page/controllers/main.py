@@ -1,133 +1,54 @@
 # controllers/main.py
-from odoo import http, fields
+from odoo import http, fields, _
 from odoo.http import request
 from odoo.addons.website_hr_recruitment.controllers.main import WebsiteHrRecruitment
+from odoo.exceptions import UserError, AccessError, ValidationError
 import logging
 import base64
+from werkzeug.exceptions import NotFound
 
 _logger = logging.getLogger(__name__)
 
 class CandidatePortal(http.Controller):
     
-    @http.route(['/candidate/applications'], type='http', auth='user', website=True, sitemap=False)
-    def candidate_applications(self, **kwargs):
-        """Display all applications for the current user"""
-        user = request.env.user
-        partner = user.partner_id
-        
-        _logger.info(f"Loading applications for user: {user.name}")
-        
-        # Find all applications linked to this partner
-        applicants = request.env['hr.applicant'].sudo().search([
-            ('partner_id', '=', partner.id)
-        ], order='create_date desc')
-        
-        # Get any session message and clear it
-        message = request.session.pop('application_message', None)
-        
-        values = {
-            'applicants': applicants,
-            'user': user,
-            'partner': partner,
-            'message': message,
-        }
-        
-        try:
-            # Try to render the template - if it fails, we'll catch the error
-            return request.render('new_page.candidate_applications_template', values)
-        except Exception as e:
-            _logger.error(f"Error rendering template: {str(e)}")
-            # Fallback to simple HTML if template fails
-            html = f"""
-            <div class="container mt-4">
-                <h1>Mes candidatures</h1>
-                <div class="table-responsive">
-                    <table class="table table-striped">
-                        <thead><tr><th>Poste</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
-                        <tbody>
-            """
-            for applicant in applicants:
-                html += f"""
-                    <tr>
-                        <td>{applicant.job_id.name}</td>
-                        <td>{applicant.stage_id.name}</td>
-                        <td>{applicant.create_date.strftime('%d/%m/%Y')}</td>
-                        <td>
-                            <a href="/my/application/{applicant.id}" class="btn btn-sm btn-info">Détails</a>
-                            <a href="/my/application/withdraw/{applicant.id}" class="btn btn-sm btn-warning ml-2" 
-                               onclick="return confirm('Êtes-vous sûr de vouloir retirer cette candidature?')">Retirer</a>
-                        </td>
-                    </tr>
-                """
-            html += "</tbody></table></div></div>"
-            return request.make_response(html, headers=[('Content-Type', 'text/html; charset=utf-8')])
+    # Constants for better maintainability
+    MODIFIABLE_STAGES = ['New', 'Nouveau', 'Initial', 'Application Received', 'To Review']
+    WITHDRAWABLE_STAGES_EXCLUDE = ['Accepté', 'Refusé', 'Retiré', 'Contrat signé']
+    DELETABLE_STAGES = ['Refusé', 'Annulé', 'Retiré', 'Contrat signé']
+    MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
+    ALLOWED_FILE_EXTENSIONS = ['.pdf', '.doc', '.docx', '.txt', '.rtf']
     
-    @http.route(['/my/application/<int:applicant_id>'], type='http', auth='user', website=True, sitemap=False)
-    def application_detail(self, applicant_id, **kwargs):
-        """View detailed information about a specific application"""
+    def _get_current_user_partner(self):
+        """Get current user's partner with validation"""
         user = request.env.user
-        partner = user.partner_id
+        if user._is_public():
+            raise AccessError(_("Authentication required"))
+        return user, user.partner_id
+    
+    def _get_user_applicant(self, applicant_id, partner_id):
+        """Get applicant ensuring it belongs to current user"""
+        applicant = request.env['hr.applicant'].sudo().search([
+            ('id', '=', applicant_id),
+            ('partner_id', '=', partner_id)
+        ], limit=1)
         
-        _logger.info(f"User {user.name} accessing application detail {applicant_id}")
-        
-        try:
-            # Find the application and ensure it belongs to the current user
-            applicant = request.env['hr.applicant'].sudo().search([
-                ('id', '=', applicant_id),
-                ('partner_id', '=', partner.id)
-            ], limit=1)
-            
-            if not applicant:
-                _logger.warning(f"Application {applicant_id} not found for user {user.name}")
-                request.session['application_message'] = {
-                    'type': 'error',
-                    'message': 'Candidature non trouvée ou accès non autorisé.'
-                }
-                return request.redirect('/candidate/applications')
-            
-            values = {
-                'applicant': applicant,
-                'user': user,
-                'partner': partner,
-            }
-            
-            try:
-                return request.render('new_page.application_detail_template', values)
-            except Exception as template_error:
-                _logger.error(f"Template error: {str(template_error)}")
-                # Fallback to simple HTML
-                html = f"""
-                <div class="container mt-4">
-                    <a href="/candidate/applications" class="btn btn-secondary mb-3">← Retour</a>
-                    <h1>Détails de la candidature</h1>
-                    <div class="card">
-                        <div class="card-body">
-                            <h3>{applicant.job_id.name}</h3>
-                            <p><strong>Status:</strong> {applicant.stage_id.name}</p>
-                            <p><strong>Date de candidature:</strong> {applicant.create_date.strftime('%d/%m/%Y %H:%M')}</p>
-                            <p><strong>Département:</strong> {applicant.job_id.department_id.name if applicant.job_id.department_id else 'Non spécifié'}</p>
-                            <div class="mt-3">
-                                <a href="/jobs/detail/{applicant.job_id.id}" class="btn btn-primary">Voir l'offre</a>
-                                <a href="/my/application/withdraw/{applicant.id}" class="btn btn-warning ml-2"
-                                   onclick="return confirm('Êtes-vous sûr?')">Retirer candidature</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                """
-                return request.make_response(html, headers=[('Content-Type', 'text/html; charset=utf-8')])
-                
-        except Exception as e:
-            _logger.error(f"Error viewing application {applicant_id}: {str(e)}")
-            request.session['application_message'] = {
-                'type': 'error',
-                'message': 'Erreur lors de l\'affichage de la candidature.'
-            }
-            return request.redirect('/candidate/applications')
-
+        if not applicant:
+            raise NotFound(_("Application not found or access denied"))
+        return applicant
+    
+    def _set_session_message(self, message_type, message):
+        """Set session message helper"""
+        request.session['application_message'] = {
+            'type': message_type,
+            'message': message
+        }
+    
+    def _get_session_message(self):
+        """Get and clear session message"""
+        return request.session.pop('application_message', None)
+    
     def _get_description_field_value(self, applicant):
-        """Helper method to get description from various possible fields"""
-        # Try different field names that might contain the application description
+        """Get description from various possible fields"""
         possible_fields = ['description', 'user_input', 'cover_letter', 'motivation', 'note']
         
         for field_name in possible_fields:
@@ -138,153 +59,262 @@ class CandidatePortal(http.Controller):
         return ''
 
     def _set_description_field_value(self, applicant, value):
-        """Helper method to set description in the correct field"""
-        # Try to find the correct field to update
+        """Set description in the appropriate field"""
         possible_fields = ['description', 'user_input', 'cover_letter', 'motivation']
         
         for field_name in possible_fields:
             if hasattr(applicant, field_name):
                 try:
                     applicant.sudo().write({field_name: value})
-                    _logger.info(f"Successfully updated {field_name} field")
+                    _logger.info(f"Updated {field_name} field successfully")
                     return True
                 except Exception as e:
                     _logger.warning(f"Failed to update {field_name}: {str(e)}")
                     continue
         
-        # If no standard field found, try to update via message_post (activity log)
+        # Fallback: add as message
         try:
             applicant.sudo().message_post(
-                body=f"<p><strong>Motivation/Description mise à jour:</strong></p><p>{value}</p>",
+                body=f"<p><strong>Description updated:</strong></p><p>{value}</p>",
                 message_type='comment'
             )
-            _logger.info("Description added as message/note")
             return True
         except Exception as e:
             _logger.warning(f"Failed to add description as message: {str(e)}")
+            return False
+
+    def _validate_file_upload(self, uploaded_file):
+        """Validate uploaded file"""
+        if not uploaded_file or not uploaded_file.filename:
+            return None
+            
+        # Check file size
+        file_content = uploaded_file.read()
+        if len(file_content) > self.MAX_FILE_SIZE:
+            raise ValidationError(_("File too large (max 10MB)"))
         
-        # If no field found, log it but don't fail
-        _logger.warning("No description field found to update")
-        return False
+        # Check file extension
+        file_ext = '.' + uploaded_file.filename.split('.')[-1].lower()
+        if file_ext not in self.ALLOWED_FILE_EXTENSIONS:
+            raise ValidationError(_("File type not allowed. Use: PDF, DOC, DOCX, TXT, RTF"))
+        
+        return file_content
+
+    def _handle_file_upload(self, applicant, uploaded_file):
+        """Handle CV file upload with proper cleanup"""
+        file_content = self._validate_file_upload(uploaded_file)
+        if not file_content:
+            return
+        
+        # Remove old CV attachments
+        old_attachments = request.env['ir.attachment'].sudo().search([
+            ('res_model', '=', 'hr.applicant'),
+            ('res_id', '=', applicant.id),
+            '|', '|', '|',
+            ('name', 'ilike', '.pdf'),
+            ('name', 'ilike', '.doc'),
+            ('name', 'ilike', 'cv'),
+            ('name', 'ilike', 'resume')
+        ])
+        old_attachments.unlink()
+        
+        # Create new attachment
+        attachment = request.env['ir.attachment'].sudo().create({
+            'name': uploaded_file.filename,
+            'datas': base64.b64encode(file_content),
+            'res_model': 'hr.applicant',
+            'res_id': applicant.id,
+            'mimetype': uploaded_file.content_type,
+            'type': 'binary',
+        })
+        
+        # Link to applicant
+        self._link_attachment_to_applicant(applicant, attachment)
+        _logger.info(f"CV uploaded successfully: {uploaded_file.filename}")
+
+    def _link_attachment_to_applicant(self, applicant, attachment):
+        """Link attachment to applicant using available fields"""
+        attachment_fields = ['attachment_ids', 'resume_ids', 'cv_ids']
+        
+        for field_name in attachment_fields:
+            if hasattr(applicant, field_name):
+                try:
+                    current_attachments = getattr(applicant, field_name).ids
+                    applicant.sudo().write({
+                        field_name: [(6, 0, current_attachments + [attachment.id])]
+                    })
+                    return
+                except Exception as e:
+                    _logger.warning(f"Failed to link attachment via {field_name}: {str(e)}")
+                    continue
+
+    def _get_or_create_withdrawn_stage(self):
+        """Get or create withdrawn stage"""
+        withdrawn_stage = request.env['hr.recruitment.stage'].sudo().search([
+            ('name', '=', 'Retiré')
+        ], limit=1)
+        
+        if not withdrawn_stage:
+            # Try to find any folded stage
+            withdrawn_stage = request.env['hr.recruitment.stage'].sudo().search([
+                ('fold', '=', True)
+            ], limit=1)
+            
+            if not withdrawn_stage:
+                # Create new withdrawn stage
+                withdrawn_stage = request.env['hr.recruitment.stage'].sudo().create({
+                    'name': 'Retiré',
+                    'fold': True,
+                    'sequence': 100,
+                })
+                
+        return withdrawn_stage
+
+    def _render_template_with_fallback(self, template_name, values, fallback_html_func):
+        """Render template with HTML fallback"""
+        try:
+            return request.render(template_name, values)
+        except Exception as e:
+            _logger.error(f"Template error for {template_name}: {str(e)}")
+            return request.make_response(
+                fallback_html_func(values), 
+                headers=[('Content-Type', 'text/html; charset=utf-8')]
+            )
+
+    def _generate_applications_fallback_html(self, values):
+        """Generate fallback HTML for applications list"""
+        applicants = values.get('applicants', [])
+        html = """
+        <div class="container mt-4">
+            <h1>Mes candidatures</h1>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead><tr><th>Poste</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+                    <tbody>
+        """
+        
+        for applicant in applicants:
+            html += f"""
+                <tr>
+                    <td>{applicant.job_id.name}</td>
+                    <td>{applicant.stage_id.name}</td>
+                    <td>{applicant.create_date.strftime('%d/%m/%Y')}</td>
+                    <td>
+                        <a href="/my/application/{applicant.id}" class="btn btn-sm btn-info">Détails</a>
+                        <a href="/my/application/withdraw/{applicant.id}" class="btn btn-sm btn-warning ml-2" 
+                           onclick="return confirm('Êtes-vous sûr?')">Retirer</a>
+                    </td>
+                </tr>
+            """
+        html += "</tbody></table></div></div>"
+        return html
+
+    @http.route(['/candidate/applications'], type='http', auth='user', website=True, sitemap=False)
+    def candidate_applications(self, **kwargs):
+        """Display all applications for the current user"""
+        try:
+            user, partner = self._get_current_user_partner()
+            _logger.info(f"Loading applications for user: {user.name}")
+            
+            # Find all applications for this partner
+            applicants = request.env['hr.applicant'].sudo().search([
+                ('partner_id', '=', partner.id)
+            ], order='create_date desc')
+            
+            values = {
+                'applicants': applicants,
+                'user': user,
+                'partner': partner,
+                'message': self._get_session_message(),
+            }
+            
+            return self._render_template_with_fallback(
+                'new_page.candidate_applications_template',
+                values,
+                self._generate_applications_fallback_html
+            )
+            
+        except Exception as e:
+            _logger.error(f"Error in candidate_applications: {str(e)}", exc_info=True)
+            self._set_session_message('error', 'An error occurred while loading your applications')
+            return request.redirect('/jobs')
+    
+    @http.route(['/my/application/<int:applicant_id>'], type='http', auth='user', website=True, sitemap=False)
+    def application_detail(self, applicant_id, **kwargs):
+        """View detailed information about a specific application"""
+        try:
+            user, partner = self._get_current_user_partner()
+            applicant = self._get_user_applicant(applicant_id, partner.id)
+            
+            _logger.info(f"User {user.name} accessing application detail {applicant_id}")
+            
+            values = {
+                'applicant': applicant,
+                'user': user,
+                'partner': partner,
+            }
+            
+            def fallback_html(vals):
+                app = vals['applicant']
+                return f"""
+                <div class="container mt-4">
+                    <a href="/candidate/applications" class="btn btn-secondary mb-3">← Retour</a>
+                    <h1>Détails de la candidature</h1>
+                    <div class="card">
+                        <div class="card-body">
+                            <h3>{app.job_id.name}</h3>
+                            <p><strong>Status:</strong> {app.stage_id.name}</p>
+                            <p><strong>Date:</strong> {app.create_date.strftime('%d/%m/%Y %H:%M')}</p>
+                            <div class="mt-3">
+                                <a href="/jobs/detail/{app.job_id.id}" class="btn btn-primary">Voir l'offre</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                """
+            
+            return self._render_template_with_fallback(
+                'new_page.application_detail_template',
+                values,
+                fallback_html
+            )
+                
+        except (NotFound, AccessError) as e:
+            self._set_session_message('error', str(e))
+            return request.redirect('/candidate/applications')
+        except Exception as e:
+            _logger.error(f"Error in application_detail: {str(e)}", exc_info=True)
+            self._set_session_message('error', 'Error displaying application details')
+            return request.redirect('/candidate/applications')
 
     @http.route(['/my/application/modify/<int:applicant_id>'], type='http', auth='user', website=True, sitemap=False, methods=['POST'])
     def modify_application(self, applicant_id, **kwargs):
-        """Modify an existing application (only for 'New' status)"""
-        user = request.env.user
-        partner = user.partner_id
-        
-        _logger.info(f"User {user.name} attempting to modify application {applicant_id}")
-        _logger.info(f"Received form data: {kwargs}")
-        
+        """Modify an existing application (only for modifiable statuses)"""
         try:
-            # Find the application
-            applicant = request.env['hr.applicant'].sudo().search([
-                ('id', '=', applicant_id),
-                ('partner_id', '=', partner.id)
-            ], limit=1)
+            user, partner = self._get_current_user_partner()
+            applicant = self._get_user_applicant(applicant_id, partner.id)
             
-            if not applicant:
-                _logger.error("Application not found or not authorized")
-                request.session['application_message'] = {
-                    'type': 'error',
-                    'message': 'Candidature non trouvée ou accès non autorisé.'
-                }
-                return request.redirect('/candidate/applications')
-            
-            # Debug current applicant data
-            _logger.info(f"Current applicant data - Name: {applicant.partner_name}, Email: {applicant.email_from}, Phone: {applicant.partner_phone}")
+            _logger.info(f"User {user.name} modifying application {applicant_id}")
             
             # Check if modifiable
-            if applicant.stage_id.name not in ['New', 'Nouveau', 'Initial', 'Application Received', 'To Review']:
-                _logger.error(f"Application not in modifiable state: {applicant.stage_id.name}")
-                request.session['application_message'] = {
-                    'type': 'error',
-                    'message': f'Cette candidature ne peut pas être modifiée (statut: {applicant.stage_id.name}).'
-                }
-                return request.redirect('/candidate/applications')
+            if applicant.stage_id.name not in self.MODIFIABLE_STAGES:
+                raise ValidationError(f'This application cannot be modified (status: {applicant.stage_id.name})')
             
-            # Process form data
+            # Prepare update data
             update_data = {
                 'partner_name': kwargs.get('partner_name', applicant.partner_name),
                 'email_from': kwargs.get('email_from', applicant.email_from),
                 'partner_phone': kwargs.get('partner_phone', applicant.partner_phone),
             }
             
-            _logger.info(f"Prepared update data: {update_data}")
-            
-            # Handle description separately using helper method
+            # Handle description
             description_value = kwargs.get('description', '')
             if description_value:
                 self._set_description_field_value(applicant, description_value)
             
             # Handle file upload
             if 'attachment_ids' in request.httprequest.files:
-                uploaded_file = request.httprequest.files['attachment_ids']
-                if uploaded_file and uploaded_file.filename:
-                    try:
-                        # Validate and process file
-                        file_content = uploaded_file.read()
-                        if len(file_content) > 10 * 1024 * 1024:
-                            raise ValueError("Fichier trop volumineux (>10MB)")
-                        
-                        # Validate file type
-                        allowed_extensions = ['.pdf', '.doc', '.docx', '.txt', '.rtf']
-                        file_ext = '.' + uploaded_file.filename.split('.')[-1].lower()
-                        if file_ext not in allowed_extensions:
-                            raise ValueError("Type de fichier non autorisé. Utilisez: PDF, DOC, DOCX, TXT, RTF")
-                        
-                        # Remove old CV attachments (keep other attachments)
-                        old_cv_attachments = request.env['ir.attachment'].sudo().search([
-                            ('res_model', '=', 'hr.applicant'),
-                            ('res_id', '=', applicant.id),
-                            ('name', 'ilike', '.pdf'),
-                            ('name', 'ilike', '.doc'),
-                        ])
-                        if not old_cv_attachments:
-                            # Fallback: remove attachments with 'cv' or 'resume' in name
-                            old_cv_attachments = request.env['ir.attachment'].sudo().search([
-                                ('res_model', '=', 'hr.applicant'),
-                                ('res_id', '=', applicant.id),
-                                '|', ('name', 'ilike', 'cv'),
-                                ('name', 'ilike', 'resume')
-                            ])
-                        old_cv_attachments.unlink()
-                        
-                        # Create new attachment
-                        attachment = request.env['ir.attachment'].sudo().create({
-                            'name': uploaded_file.filename,
-                            'datas': base64.b64encode(file_content),
-                            'res_model': 'hr.applicant',
-                            'res_id': applicant.id,
-                            'mimetype': uploaded_file.content_type,
-                            'type': 'binary',
-                        })
-                        
-                        # Try to link attachment to applicant
-                        try:
-                            # Method 1: Direct field update
-                            current_attachments = applicant.attachment_ids.ids if hasattr(applicant, 'attachment_ids') else []
-                            update_data['attachment_ids'] = [(6, 0, current_attachments + [attachment.id])]
-                        except:
-                            # Method 2: Try alternative field names
-                            for att_field in ['attachment_ids', 'resume_ids', 'cv_ids']:
-                                if hasattr(applicant, att_field):
-                                    try:
-                                        current_attachments = getattr(applicant, att_field).ids
-                                        update_data[att_field] = [(6, 0, current_attachments + [attachment.id])]
-                                        break
-                                    except:
-                                        continue
-                        
-                        _logger.info(f"New CV uploaded successfully: {uploaded_file.filename}")
-                        
-                    except Exception as file_error:
-                        _logger.error(f"File upload error: {str(file_error)}")
-                        request.session['application_message'] = {
-                            'type': 'error',
-                            'message': f'Erreur fichier: {str(file_error)}'
-                        }
-                        return request.redirect('/candidate/applications')
+                self._handle_file_upload(applicant, request.httprequest.files['attachment_ids'])
             
             # Update partner info
             partner.sudo().write({
@@ -296,168 +326,82 @@ class CandidatePortal(http.Controller):
             # Update application
             applicant.sudo().write(update_data)
             
-            # Add modification note using helper method
+            # Add modification note
             current_description = self._get_description_field_value(applicant)
-            modification_note = f"\n\n--- Modifié le {fields.Datetime.now()} ---"
+            modification_note = f"\n\n--- Modified on {fields.Datetime.now()} ---"
             self._set_description_field_value(applicant, current_description + modification_note)
             
-            _logger.info("Application updated successfully")
-            request.session['application_message'] = {
-                'type': 'success',
-                'message': f'Candidature pour "{applicant.job_id.name}" mise à jour!'
-            }
+            self._set_session_message('success', f'Application for "{applicant.job_id.name}" updated successfully!')
             
+        except (NotFound, AccessError, ValidationError) as e:
+            self._set_session_message('error', str(e))
         except Exception as e:
-            _logger.error(f"Modification error: {str(e)}", exc_info=True)
-            request.session['application_message'] = {
-                'type': 'error',
-                'message': f'Erreur: {str(e)}'
-            }
+            _logger.error(f"Error in modify_application: {str(e)}", exc_info=True)
+            self._set_session_message('error', f'Error modifying application: {str(e)}')
         
         return request.redirect('/candidate/applications')
     
     @http.route(['/my/application/withdraw/<int:applicant_id>'], type='http', auth='user', website=True, sitemap=False)
     def withdraw_application(self, applicant_id, **kwargs):
         """Withdraw an active application"""
-        user = request.env.user
-        partner = user.partner_id
-        
-        _logger.info(f"User {user.name} attempting to withdraw application {applicant_id}")
-        
         try:
-            # Find the application and ensure it belongs to the current user
-            applicant = request.env['hr.applicant'].sudo().search([
-                ('id', '=', applicant_id),
-                ('partner_id', '=', partner.id)
-            ], limit=1)
+            user, partner = self._get_current_user_partner()
+            applicant = self._get_user_applicant(applicant_id, partner.id)
             
-            if not applicant:
-                _logger.warning(f"Application {applicant_id} not found for user {user.name}")
-                request.session['application_message'] = {
-                    'type': 'error',
-                    'message': 'Candidature non trouvée ou accès non autorisé.'
-                }
-                return request.redirect('/candidate/applications')
+            _logger.info(f"User {user.name} withdrawing application {applicant_id}")
             
-            # Use partner_name or job name for logging instead of applicant.name
-            candidate_info = applicant.partner_name or applicant.email_from or f"Application {applicant.id}"
-            _logger.info(f"Found application for {candidate_info} - Job: {applicant.job_id.name} - Stage: {applicant.stage_id.name} - Fold: {applicant.stage_id.fold}")
+            # Check if withdrawable
+            if (applicant.stage_id.fold or 
+                applicant.stage_id.name in self.WITHDRAWABLE_STAGES_EXCLUDE):
+                raise ValidationError(f'This application cannot be withdrawn (status: {applicant.stage_id.name})')
             
-            # Check if the application can be withdrawn (only active applications)
-            if applicant.stage_id.fold or applicant.stage_id.name in ['Accepté', 'Refusé', 'Retiré']:
-                _logger.warning(f"Application {applicant_id} cannot be withdrawn - status: {applicant.stage_id.name}, fold: {applicant.stage_id.fold}")
-                request.session['application_message'] = {
-                    'type': 'error',
-                    'message': f'Cette candidature ne peut pas être retirée (statut: {applicant.stage_id.name}).'
-                }
-                return request.redirect('/candidate/applications')
-            
-            # Find or create a "Retiré" (Withdrawn) stage
-            withdrawn_stage = request.env['hr.recruitment.stage'].sudo().search([
-                ('name', '=', 'Retiré')
-            ], limit=1)
-            
-            if not withdrawn_stage:
-                # Try to find any folded stage to use as withdrawn
-                withdrawn_stage = request.env['hr.recruitment.stage'].sudo().search([
-                    ('fold', '=', True)
-                ], limit=1)
-                
-                if not withdrawn_stage:
-                    # Create new withdrawn stage
-                    withdrawn_stage = request.env['hr.recruitment.stage'].sudo().create({
-                        'name': 'Retiré',
-                        'fold': True,
-                        'sequence': 100,
-                    })
-                    _logger.info("Created new 'Retiré' stage")
-            
+            # Get or create withdrawn stage
+            withdrawn_stage = self._get_or_create_withdrawn_stage()
             job_name = applicant.job_id.name
             
-            # Update the application
-            applicant.sudo().write({
-                'stage_id': withdrawn_stage.id,
-            })
+            # Update application
+            applicant.sudo().write({'stage_id': withdrawn_stage.id})
             
-            # Add a note using helper method
-            from datetime import datetime
-            withdrawal_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            withdrawal_note = f"--- Candidature retirée par le candidat le {withdrawal_date} ---"
+            # Add withdrawal note
+            withdrawal_note = f"--- Application withdrawn by candidate on {fields.Datetime.now()} ---"
+            current_description = self._get_description_field_value(applicant)
+            self._set_description_field_value(applicant, current_description + f"\n\n{withdrawal_note}")
             
-            try:
-                current_description = self._get_description_field_value(applicant)
-                self._set_description_field_value(applicant, current_description + f"\n\n{withdrawal_note}")
-            except Exception as note_error:
-                # If adding note fails, just log it - don't break the withdrawal process
-                _logger.warning(f"Could not add withdrawal note: {str(note_error)}")
-                pass
+            self._set_session_message('success', 
+                f'Application for "{job_name}" withdrawn successfully. You can now apply again.')
             
-            _logger.info(f"Application {applicant_id} withdrawn successfully. New stage: {withdrawn_stage.name}")
-            
-            request.session['application_message'] = {
-                'type': 'success',
-                'message': f'Candidature pour "{job_name}" retirée avec succès. Vous pouvez maintenant postuler à nouveau.'
-            }
-            
+        except (NotFound, AccessError, ValidationError) as e:
+            self._set_session_message('error', str(e))
         except Exception as e:
-            _logger.error(f"Error withdrawing application {applicant_id}: {str(e)}")
-            import traceback
-            _logger.error(traceback.format_exc())
-            request.session['application_message'] = {
-                'type': 'error',
-                'message': f'Erreur lors du retrait de la candidature: {str(e)}'
-            }
+            _logger.error(f"Error in withdraw_application: {str(e)}", exc_info=True)
+            self._set_session_message('error', f'Error withdrawing application: {str(e)}')
         
         return request.redirect('/candidate/applications')
     
     @http.route(['/my/application/delete/<int:applicant_id>'], type='http', auth='user', website=True, sitemap=False)
     def delete_application(self, applicant_id, **kwargs):
         """Delete a finished application"""
-        user = request.env.user
-        partner = user.partner_id
-        
-        _logger.info(f"User {user.name} attempting to delete application {applicant_id}")
-        
         try:
-            # Find the application and ensure it belongs to the current user
-            applicant = request.env['hr.applicant'].sudo().search([
-                ('id', '=', applicant_id),
-                ('partner_id', '=', partner.id)
-            ], limit=1)
+            user, partner = self._get_current_user_partner()
+            applicant = self._get_user_applicant(applicant_id, partner.id)
             
-            if not applicant:
-                _logger.warning(f"Application {applicant_id} not found for user {user.name}")
-                request.session['application_message'] = {
-                    'type': 'error',
-                    'message': 'Candidature non trouvée ou accès non autorisé.'
-                }
-                return request.redirect('/candidate/applications')
+            _logger.info(f"User {user.name} deleting application {applicant_id}")
             
-            # Check if the application can be deleted (only closed/finished applications)
-            if not applicant.stage_id.fold and applicant.stage_id.name not in ['Refusé', 'Annulé', 'Retiré']:
-                _logger.warning(f"Application {applicant_id} cannot be deleted - status: {applicant.stage_id.name}")
-                request.session['application_message'] = {
-                    'type': 'error',
-                    'message': 'Vous ne pouvez supprimer que les candidatures terminées ou refusées.'
-                }
-                return request.redirect('/candidate/applications')
+            # Check if deletable
+            if (not applicant.stage_id.fold and 
+                applicant.stage_id.name not in self.DELETABLE_STAGES):
+                raise ValidationError('You can only delete finished or rejected applications')
             
             job_name = applicant.job_id.name
-            applicant.sudo().unlink()  # Delete the application
+            applicant.sudo().unlink()
             
-            _logger.info(f"Application {applicant_id} deleted successfully by user {user.name}")
+            self._set_session_message('success', f'Application for "{job_name}" deleted successfully')
             
-            request.session['application_message'] = {
-                'type': 'success',
-                'message': f'Candidature pour "{job_name}" supprimée avec succès.'
-            }
-            
+        except (NotFound, AccessError, ValidationError) as e:
+            self._set_session_message('error', str(e))
         except Exception as e:
-            _logger.error(f"Error deleting application {applicant_id}: {str(e)}")
-            request.session['application_message'] = {
-                'type': 'error',
-                'message': 'Erreur lors de la suppression de la candidature.'
-            }
+            _logger.error(f"Error in delete_application: {str(e)}", exc_info=True)
+            self._set_session_message('error', 'Error deleting application')
         
         return request.redirect('/candidate/applications')
 
@@ -469,34 +413,32 @@ class CustomWebsiteHrRecruitment(WebsiteHrRecruitment):
         '/jobs/apply/<model("hr.job"):job>/<string:slug>'
     ], type='http', auth="public", website=True, sitemap=False)
     def jobs_apply(self, job, **kwargs):
-        """Override the job application route to handle unauthenticated users"""
-        
+        """Override job application route with authentication and duplicate checks"""
         _logger.info(f"Job apply request for job {job.id} - {job.name}")
         
-        # Check if user is authenticated (not a public/anonymous user)
+        # Check authentication
         if request.env.user._is_public():
-            # User is not logged in, redirect to login page
             current_url = request.httprequest.url
             redirect_url = f'/web/login?redirect={current_url}'
             _logger.info(f"Redirecting unauthenticated user to: {redirect_url}")
             return request.redirect(redirect_url)
         
-        # Check if user already has an active application for this job
+        # Check for existing active applications
         partner = request.env.user.partner_id
         existing_applicant = request.env['hr.applicant'].sudo().search([
             ('partner_id', '=', partner.id),
             ('job_id', '=', job.id),
-            ('stage_id.fold', '=', False)  # Active application (not closed/archived)
+            ('stage_id.fold', '=', False)  # Active applications only
         ], limit=1)
         
         if existing_applicant:
-            # User already has an active application, redirect to applications page with message
             request.session['application_message'] = {
                 'type': 'warning',
-                'message': f'Vous avez déjà une candidature active pour le poste "{job.name}". Vous ne pouvez pas postuler à nouveau tant que votre candidature actuelle est en cours.'
+                'message': f'You already have an active application for "{job.name}". '
+                          'You cannot apply again while your current application is in progress.'
             }
             return request.redirect('/candidate/applications')
         
-        # User is authenticated and can apply, proceed with normal flow
-        _logger.info("User is authenticated, proceeding with application")
+        # Proceed with normal application flow
+        _logger.info("User authenticated and eligible, proceeding with application")
         return super().jobs_apply(job=job, **kwargs)
