@@ -13,8 +13,7 @@ class CandidatePortal(http.Controller):
     
     # Constants for better maintainability
     MODIFIABLE_STAGES = ['New', 'Nouveau', 'Initial', 'Application Received', 'To Review']
-    WITHDRAWABLE_STAGES_EXCLUDE = ['Accepté', 'Refusé', 'Retiré', 'Contrat signé']
-    DELETABLE_STAGES = ['Refusé', 'Annulé', 'Retiré', 'Contrat signé']
+   
     MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
     ALLOWED_FILE_EXTENSIONS = ['.pdf', '.doc', '.docx', '.txt', '.rtf']
     
@@ -341,69 +340,8 @@ class CandidatePortal(http.Controller):
         
         return request.redirect('/candidate/applications')
     
-    @http.route(['/my/application/withdraw/<int:applicant_id>'], type='http', auth='user', website=True, sitemap=False)
-    def withdraw_application(self, applicant_id, **kwargs):
-        """Withdraw an active application"""
-        try:
-            user, partner = self._get_current_user_partner()
-            applicant = self._get_user_applicant(applicant_id, partner.id)
-            
-            _logger.info(f"User {user.name} withdrawing application {applicant_id}")
-            
-            # Check if withdrawable
-            if (applicant.stage_id.fold or 
-                applicant.stage_id.name in self.WITHDRAWABLE_STAGES_EXCLUDE):
-                raise ValidationError(f'This application cannot be withdrawn (status: {applicant.stage_id.name})')
-            
-            # Get or create withdrawn stage
-            withdrawn_stage = self._get_or_create_withdrawn_stage()
-            job_name = applicant.job_id.name
-            
-            # Update application
-            applicant.sudo().write({'stage_id': withdrawn_stage.id})
-            
-            # Add withdrawal note
-            withdrawal_note = f"--- Application withdrawn by candidate on {fields.Datetime.now()} ---"
-            current_description = self._get_description_field_value(applicant)
-            self._set_description_field_value(applicant, current_description + f"\n\n{withdrawal_note}")
-            
-            self._set_session_message('success', 
-                f'Application for "{job_name}" withdrawn successfully. You can now apply again.')
-            
-        except (NotFound, AccessError, ValidationError) as e:
-            self._set_session_message('error', str(e))
-        except Exception as e:
-            _logger.error(f"Error in withdraw_application: {str(e)}", exc_info=True)
-            self._set_session_message('error', f'Error withdrawing application: {str(e)}')
-        
-        return request.redirect('/candidate/applications')
     
-    @http.route(['/my/application/delete/<int:applicant_id>'], type='http', auth='user', website=True, sitemap=False)
-    def delete_application(self, applicant_id, **kwargs):
-        """Delete a finished application"""
-        try:
-            user, partner = self._get_current_user_partner()
-            applicant = self._get_user_applicant(applicant_id, partner.id)
-            
-            _logger.info(f"User {user.name} deleting application {applicant_id}")
-            
-            # Check if deletable
-            if (not applicant.stage_id.fold and 
-                applicant.stage_id.name not in self.DELETABLE_STAGES):
-                raise ValidationError('You can only delete finished or rejected applications')
-            
-            job_name = applicant.job_id.name
-            applicant.sudo().unlink()
-            
-            self._set_session_message('success', f'Application for "{job_name}" deleted successfully')
-            
-        except (NotFound, AccessError, ValidationError) as e:
-            self._set_session_message('error', str(e))
-        except Exception as e:
-            _logger.error(f"Error in delete_application: {str(e)}", exc_info=True)
-            self._set_session_message('error', 'Error deleting application')
-        
-        return request.redirect('/candidate/applications')
+   
 
 
 class CustomWebsiteHrRecruitment(WebsiteHrRecruitment):
