@@ -936,7 +936,7 @@
     </template>
 
     <!-- Status Badge Component -->
-    <template id="status_badge_template" name="Status Badge">
+     <template id="status_badge_template" name="Status Badge">
         <t t-set="status_config" t-value="{
             'Nouveau': {'color': '#6c757d', 'bg': '#f8f9fa', 'icon': 'fa-file-text'},
             'Qualification initiale': {'color': '#17a2b8', 'bg': '#e7f7ff', 'icon': 'fa-search'},
@@ -972,8 +972,6 @@
                 <i class="fa fa-file-text-o mr-2"></i>Détails
             </a>
             
-            <!-- Action buttons row -->
-            <div class="d-flex gap-2 mt-2">
                 <!-- Modify (only for new applications) -->
                 <t t-if="applicant.stage_id.name == 'Nouveau'">
                     <button type="button" 
@@ -988,24 +986,8 @@
                     </button>
                 </t>
                 
-                <!-- Withdraw button for active applications -->
-                <t t-if="applicant.stage_id.name not in ['Contrat signé', 'Retiré']">
-                    <a t-attf-href="/my/application/withdraw/#{applicant.id}" 
-                       class="btn btn-warning-modern btn-modern btn-sm-modern flex-fill" 
-                       onclick="return confirm('Êtes-vous sûr de vouloir retirer cette candidature?')">
-                        <i class="fa fa-ban mr-2"></i>Retirer
-                    </a>
-                </t>
                 
-                <!-- Delete (for finished applications) -->
-                <t t-if="applicant.stage_id.name in ['Contrat signé', 'Retiré']">
-                    <a t-attf-href="/my/application/delete/#{applicant.id}" 
-                       class="btn btn-danger-modern btn-modern btn-sm-modern flex-fill" 
-                       onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette candidature?')">
-                        <i class="fa fa-trash mr-2"></i>Supprimer
-                    </a>
-                </t>
-            </div>
+           
         </div>
     </template>
 
@@ -1086,6 +1068,7 @@
     </template>
 
     <!-- Application Detail Template -->
+    <!-- Application Detail Template -->
     <template id="application_detail_template" name="Application Details">
         <t t-call="website.layout">
             <t t-set="head">
@@ -1110,6 +1093,10 @@
                         --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
                         --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
                         --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+                    }
+
+                    * {
+                        box-sizing: border-box;
                     }
 
                     body {
@@ -1238,7 +1225,7 @@
                         padding: 2rem;
                     }
 
-                    /* Modern Button Styles for Detail Page */
+                    /* Modern Button Styles */
                     .btn-modern {
                         padding: 12px 24px;
                         border-radius: 10px;
@@ -1332,7 +1319,7 @@
                         text-decoration: none;
                     }
 
-                    /* Status Badge Styles for Detail Page */
+                    /* Status Badge Styles */
                     .status-badge {
                         padding: 10px 18px;
                         border-radius: 25px;
@@ -1362,6 +1349,125 @@
                         left: 100%;
                     }
 
+                    /* Modal Styles */
+                    .modal-modern .modal-content {
+                        border-radius: 20px;
+                        border: none;
+                        box-shadow: var(--shadow-xl);
+                        overflow: hidden;
+                    }
+
+                    .modal-modern .modal-header {
+                        background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+                        color: var(--light-text);
+                        border: none;
+                        padding: 2.5rem;
+                        position: relative;
+                        overflow: hidden;
+                    }
+
+                    .modal-modern .modal-header::before {
+                        content: '';
+                        position: absolute;
+                        top: -50%;
+                        right: -20%;
+                        width: 200px;
+                        height: 200px;
+                        background: rgba(255, 255, 255, 0.1);
+                        border-radius: 50%;
+                    }
+
+                    .modal-modern .modal-body {
+                        padding: 2.5rem;
+                        background: var(--card-bg);
+                    }
+
+                    .modal-modern .modal-footer {
+                        border: none;
+                        padding: 0 2.5rem 2.5rem 2.5rem;
+                        gap: 1rem;
+                        background: var(--card-bg);
+                    }
+
+                    .form-control-modern {
+                        border-radius: 10px;
+                        border: 2px solid var(--gray-300);
+                        padding: 14px 18px;
+                        transition: all 0.3s ease;
+                        font-size: 1rem;
+                        background: var(--card-bg);
+                    }
+
+                    .form-control-modern:focus {
+                        border-color: var(--secondary-color);
+                        box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.15);
+                        outline: none;
+                        background: var(--card-bg);
+                        transform: translateY(-1px);
+                    }
+
+                    .form-label {
+                        font-weight: 600;
+                        color: var(--gray-700);
+                        margin-bottom: 0.5rem;
+                        font-size: 0.95rem;
+                    }
+
+                    .file-input-wrapper {
+                        position: relative;
+                        display: inline-block;
+                        cursor: pointer;
+                        width: 100%;
+                    }
+
+                    .file-input-wrapper input[type=file] {
+                        position: absolute;
+                        left: -9999px;
+                    }
+
+                    .file-input-label {
+                        display: block;
+                        padding: 16px 20px;
+                        border: 2px dashed var(--gray-300);
+                        border-radius: 10px;
+                        text-align: center;
+                        transition: all 0.3s ease;
+                        background: var(--gray-50);
+                        cursor: pointer;
+                    }
+
+                    .file-input-label:hover {
+                        border-color: var(--secondary-color);
+                        background: rgba(52, 152, 219, 0.05);
+                        transform: translateY(-2px);
+                    }
+
+                    .close-btn {
+                        position: absolute;
+                        top: 20px;
+                        right: 25px;
+                        background: none;
+                        border: none;
+                        font-size: 1.5rem;
+                        cursor: pointer;
+                        color: inherit;
+                        opacity: 0.7;
+                        transition: all 0.3s ease;
+                        width: 35px;
+                        height: 35px;
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-weight: bold;
+                    }
+
+                    .close-btn:hover {
+                        opacity: 1;
+                        background: rgba(0, 0, 0, 0.1);
+                        transform: rotate(90deg) scale(1.1);
+                    }
+
                     .fade-in {
                         animation: fadeIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
                     }
@@ -1376,6 +1482,29 @@
                             transform: translateY(0) scale(1); 
                         }
                     }
+
+                    .d-flex {
+                        display: flex;
+                    }
+
+                    .justify-content-between {
+                        justify-content: space-between;
+                    }
+
+                    .align-items-center {
+                        align-items: center;
+                    }
+
+                    .w-100 {
+                        width: 100%;
+                    }
+
+                    .mb-0 { margin-bottom: 0; }
+                    .mb-2 { margin-bottom: 0.5rem; }
+                    .mb-3 { margin-bottom: 1rem; }
+                    .mb-4 { margin-bottom: 1.5rem; }
+                    .mr-2 { margin-right: 0.5rem; }
+                    .mr-3 { margin-right: 1rem; }
 
                     @media (max-width: 768px) {
                         .detail-container {
@@ -1411,6 +1540,12 @@
 
                         .actions-section .btn-modern:last-child {
                             margin-bottom: 0;
+                        }
+
+                        .modal-modern .modal-header,
+                        .modal-modern .modal-body,
+                        .modal-modern .modal-footer {
+                            padding: 1.5rem;
                         }
                     }
 
@@ -1480,17 +1615,18 @@
                         
                         <!-- Actions -->
                         <div class="actions-section">
-                            <div class="row">
-                                <div class="col-md-4 mb-3">
+                            <div class="row justify-content-center">
+                                <div class="col-md-4 col-lg-3 mb-3">
                                     <a t-if="applicant.job_id" 
-                                       t-attf-href="/jobs/detail/#{applicant.job_id.id}" 
-                                       class="btn btn-primary-modern btn-modern w-100">
+                                    t-attf-href="/jobs/detail/#{applicant.job_id.id}" 
+                                    class="btn btn-primary-modern btn-modern w-100">
                                         <i class="fa fa-eye mr-2"></i>Voir l'offre
                                     </a>
                                 </div>
-                                <div class="col-md-4 mb-3">
-                                    <!-- Edit button for "Nouveau" status -->
-                                    <t t-if="applicant.stage_id.name == 'Nouveau'">
+                
+                                <!-- Only show edit and delete buttons for "Nouveau" status -->
+                                <t t-if="applicant.stage_id.name == 'Nouveau'">
+                                    <div class="col-md-4 col-lg-3 mb-3">
                                         <button type="button" 
                                                 class="btn btn-success-modern btn-modern w-100" 
                                                 onclick="openModifyModal(this)"
@@ -1501,26 +1637,8 @@
                                                 t-att-data-job-name="applicant.job_id.name">
                                             <i class="fa fa-edit mr-2"></i>Modifier
                                         </button>
-                                    </t>
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <!-- Withdraw button for active applications -->
-                                    <t t-if="applicant.stage_id.name not in ['Contrat signé', 'Retiré']">
-                                        <a t-attf-href="/my/application/withdraw/#{applicant.id}" 
-                                           class="btn btn-warning-modern btn-modern w-100" 
-                                           onclick="return confirm('Êtes-vous sûr de vouloir retirer cette candidature?')">
-                                            <i class="fa fa-ban mr-2"></i>Retirer
-                                        </a>
-                                    </t>
-                                    <!-- Delete button for finished applications -->
-                                    <t t-if="applicant.stage_id.name in ['Contrat signé', 'Retiré']">
-                                        <a t-attf-href="/my/application/delete/#{applicant.id}" 
-                                           class="btn btn-danger-modern btn-modern w-100" 
-                                           onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette candidature?')">
-                                            <i class="fa fa-trash mr-2"></i>Supprimer
-                                        </a>
-                                    </t>
-                                </div>
+                                    </div>
+                                </t>
                             </div>
                         </div>
                     </div>
@@ -1536,10 +1654,105 @@
                 </div>
             </div>
 
-            <!-- Include the modify modal and JavaScript from main template -->
-            <t t-call="new_page.modify_application_modal_template"/>
+            <!-- Modification Modal -->
+            <div class="modal fade modal-modern" id="modifyApplicationModal" tabindex="-1" role="dialog" aria-labelledby="modifyModalTitle" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                        <form id="modifyApplicationForm" method="post" enctype="multipart/form-data" onsubmit="return handleFormSubmit(this)">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            
+                            <div class="modal-header">
+                                <div>
+                                    <h4 class="modal-title mb-2" id="modifyModalTitle" style="font-weight: 700;">
+                                        <i class="fa fa-edit mr-3"></i>Modifier ma candidature
+                                    </h4>
+                                    <p class="mb-0 opacity-90">Candidature pour: <strong id="modal-job-name">...</strong></p>
+                                </div>
+                                <button type="button" class="close-btn" onclick="closeModal('modifyApplicationModal')" style="color: white;" aria-label="Close">×</button>
+                            </div>
+                            
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="partner_name" class="form-label">Nom complet *</label>
+                                        <input type="text" class="form-control form-control-modern" id="partner_name" name="partner_name" required="required"/>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="email_from" class="form-label">Adresse email *</label>
+                                        <input type="email" class="form-control form-control-modern" id="email_from" name="email_from" required="required"/>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="partner_phone" class="form-label">Téléphone</label>
+                                        <input type="tel" class="form-control form-control-modern" id="partner_phone" name="partner_phone"/>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="linkedin_profile" class="form-label">Profil LinkedIn</label>
+                                        <input type="url" class="form-control form-control-modern" id="linkedin_profile" name="linkedin_profile" 
+                                               placeholder="https://linkedin.com/in/votre-profil"/>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label for="description" class="form-label">Lettre de motivation</label>
+                                    <textarea class="form-control form-control-modern" id="description" name="description" rows="4" 
+                                              placeholder="Expliquez votre motivation et ce que vous pouvez apporter..."></textarea>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">CV (optionnel)</label>
+                                    <div class="file-input-wrapper">
+                                        <input type="file" id="attachment_ids" name="attachment_ids" accept=".pdf,.doc,.docx"/>
+                                        <label for="attachment_ids" class="file-input-label">
+                                            <i class="fa fa-cloud-upload mr-2"></i>Choisir un nouveau CV
+                                        </label>
+                                    </div>
+                                    <small class="text-muted">
+                                        <i class="fa fa-info-circle mr-1"></i>Formats acceptés: PDF, DOC, DOCX (max 10MB)
+                                    </small>
+                                </div>
+                            </div>
+                            
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-modern btn-modern" onclick="closeModal('modifyApplicationModal')">
+                                    <i class="fa fa-times mr-2"></i>Annuler
+                                </button>
+                                <button type="submit" class="btn btn-primary-modern btn-modern">
+                                    <i class="fa fa-save mr-2"></i>Sauvegarder les modifications
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
             
             <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    // File input handling
+                    const fileInput = document.getElementById('attachment_ids');
+                    const fileLabel = document.querySelector('.file-input-label');
+                    
+                    if (fileInput &amp;&amp; fileLabel) {
+                        fileInput.addEventListener('change', function() {
+                            const fileName = this.files[0] ? this.files[0].name : 'Choisir un nouveau CV';
+                            fileLabel.innerHTML = '<i class="fa fa-file mr-2"></i>' + fileName;
+                        });
+                    }
+
+                    // Add loading animation to buttons on click
+                    const buttons = document.querySelectorAll('.btn-modern');
+                    buttons.forEach(function(button) {
+                        button.addEventListener('click', function() {
+                            if (this.type === 'submit' || this.href) {
+                                this.style.opacity = '0.7';
+                                this.style.transform = 'scale(0.98)';
+                            }
+                        });
+                    });
+                });
+
                 // Modal functions with proper event handling
                 function openModifyModal(button) {
                     const data = button.dataset;
@@ -1557,12 +1770,19 @@
                     // Show modal using Bootstrap 4 syntax
                     const modal = document.getElementById('modifyApplicationModal');
                     if (window.jQuery &amp;&amp; window.jQuery.fn.modal) {
-
-
                         window.jQuery('#modifyApplicationModal').modal('show');
                     } else {
                         modal.style.display = 'block';
                         modal.classList.add('show');
+                        document.body.style.overflow = 'hidden';
+                        
+                        // Add backdrop
+                        if (!document.querySelector('.modal-backdrop')) {
+                            const backdrop = document.createElement('div');
+                            backdrop.className = 'modal-backdrop fade show';
+                            backdrop.style.cssText = 'position: fixed; top: 0; left: 0; z-index: 1040; width: 100vw; height: 100vh; background-color: #000; opacity: 0.5;';
+                            document.body.appendChild(backdrop);
+                        }
                     }
                 }
                 
@@ -1570,12 +1790,17 @@
                 function closeModal(modalId) {
                     const modal = document.getElementById(modalId);
                     if (window.jQuery &amp;&amp; window.jQuery.fn.modal) {
-
-
                         window.jQuery('#' + modalId).modal('hide');
                     } else {
                         modal.style.display = 'none';
                         modal.classList.remove('show');
+                        document.body.style.overflow = '';
+                        
+                        // Remove backdrop
+                        const backdrop = document.querySelector('.modal-backdrop');
+                        if (backdrop) {
+                            backdrop.remove();
+                        }
                     }
                 }
                 
@@ -1598,16 +1823,18 @@
                     return true;
                 }
 
-                // File input handling
-                document.addEventListener('DOMContentLoaded', function() {
-                    const fileInput = document.getElementById('attachment_ids');
-                    const fileLabel = document.querySelector('.file-input-label');
-                    
-                    if (fileInput &amp;&amp; fileLabel) {
-                        fileInput.addEventListener('change', function() {
-                            const fileName = this.files[0] ? this.files[0].name : 'Choisir un nouveau CV';
-                            fileLabel.innerHTML = '<i class="fa fa-file mr-2"></i>' + fileName;
-                        });
+                // Close modal when clicking outside
+                window.addEventListener('click', function(event) {
+                    const modal = document.getElementById('modifyApplicationModal');
+                    if (event.target === modal) {
+                        closeModal('modifyApplicationModal');
+                    }
+                });
+
+                // Close modal with Escape key
+                window.addEventListener('keydown', function(event) {
+                    if (event.key === 'Escape') {
+                        closeModal('modifyApplicationModal');
                     }
                 });
             </script>
