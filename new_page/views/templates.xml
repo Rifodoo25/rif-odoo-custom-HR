@@ -1,0 +1,1616 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Modern candidate applications template with matching site colors and edit functionality -->
+    <template id="candidate_applications_template" name="My Applications">
+        <t t-call="website.layout">
+            <t t-set="head">
+                <style>
+                    :root {
+                        /* Updated colors to match site theme */
+                        --primary-color: #2c3e50;
+                        --primary-light: #34495e;
+                        --primary-dark: #1a252f;
+                        --secondary-color: #3498db;
+                        --secondary-light: #5dade2;
+                        --success-color: #27ae60;
+                        --warning-color: #f39c12;
+                        --danger-color: #e74c3c;
+                        --info-color: #17a2b8;
+                        --dark-bg: #1a252f;
+                        --darker-bg: #151f27;
+                        --light-text: #ecf0f1;
+                        --muted-text: #95a5a6;
+                        --card-bg: #ffffff;
+                        --gray-50: #f8f9fa;
+                        --gray-100: #f1f3f4;
+                        --gray-200: #dee2e6;
+                        --gray-300: #ced4da;
+                        --gray-600: #6c757d;
+                        --gray-700: #495057;
+                        --gray-900: #212529;
+                        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+                        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+                        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+                        --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+                    }
+
+                    * {
+                        box-sizing: border-box;
+                    }
+
+                    body {
+                        background: #f8f9fa;
+                        min-height: 100vh;
+                        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+                        margin: 0;
+                        padding: 0;
+                    }
+
+                    .main-container {
+                        background: var(--card-bg);
+                        border-radius: 20px;
+                        box-shadow: var(--shadow-xl);
+                        margin: 2rem auto;
+                        padding: 0;
+                        max-width: 1400px;
+                        position: relative;
+                        overflow: hidden;
+                    }
+
+                    .page-header {
+                        background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+                        color: var(--light-text);
+                        padding: 3rem;
+                        margin-bottom: 0;
+                        position: relative;
+                        overflow: hidden;
+                    }
+
+                    .page-header::before {
+                        content: '';
+                        position: absolute;
+                        top: -50%;
+                        right: -20%;
+                        width: 300px;
+                        height: 300px;
+                        background: rgba(255, 255, 255, 0.05);
+                        border-radius: 50%;
+                        transform: rotate(-15deg);
+                    }
+
+                    .page-header::after {
+                        content: '';
+                        position: absolute;
+                        bottom: -30%;
+                        left: -10%;
+                        width: 200px;
+                        height: 200px;
+                        background: rgba(255, 255, 255, 0.03);
+                        border-radius: 50%;
+                    }
+
+                    .page-title {
+                        font-size: 2.75rem;
+                        font-weight: 800;
+                        margin-bottom: 0.75rem;
+                        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+                        position: relative;
+                        z-index: 2;
+                        color: var(--light-text);
+                    }
+
+                    .page-subtitle {
+                        font-size: 1.125rem;
+                        opacity: 0.9;
+                        font-weight: 400;
+                        position: relative;
+                        z-index: 2;
+                        color: var(--light-text);
+                    }
+
+                    .content-wrapper {
+                        padding: 3rem;
+                        background: var(--gray-50);
+                        min-height: 400px;
+                    }
+
+                    .application-card {
+                        background: var(--card-bg);
+                        border-radius: 20px;
+                        box-shadow: var(--shadow-md);
+                        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                        border: 1px solid var(--gray-200);
+                        overflow: hidden;
+                        position: relative;
+                        height: 100%;
+                        display: flex;
+                        flex-direction: column;
+                    }
+
+                    .application-card::before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        height: 4px;
+                        background: linear-gradient(90deg, var(--secondary-color), var(--secondary-light));
+                    }
+
+                    .application-card:hover {
+                        transform: translateY(-8px);
+                        box-shadow: var(--shadow-xl);
+                        border-color: var(--secondary-color);
+                    }
+
+                    .card-body {
+                        padding: 2rem;
+                        flex: 1;
+                        display: flex;
+                        flex-direction: column;
+                    }
+
+                    .card-title {
+                        font-size: 1.5rem;
+                        font-weight: 700;
+                        color: var(--gray-900);
+                        margin-bottom: 1rem;
+                        line-height: 1.3;
+                    }
+
+                    .status-badge {
+                        padding: 10px 18px;
+                        border-radius: 25px;
+                        font-size: 0.875rem;
+                        font-weight: 600;
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 8px;
+                        text-transform: uppercase;
+                        letter-spacing: 0.025em;
+                        position: relative;
+                        overflow: hidden;
+                    }
+
+                    .status-badge::before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: -100%;
+                        width: 100%;
+                        height: 100%;
+                        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+                        transition: left 0.6s ease;
+                    }
+
+                    .status-badge:hover::before {
+                        left: 100%;
+                    }
+
+                    .btn-modern {
+                        padding: 12px 24px;
+                        border-radius: 10px;
+                        font-weight: 600;
+                        font-size: 0.95rem;
+                        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                        border: none;
+                        position: relative;
+                        overflow: hidden;
+                        text-decoration: none;
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 8px;
+                        cursor: pointer;
+                        text-align: center;
+                        white-space: nowrap;
+                    }
+
+                    .btn-modern::before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: -100%;
+                        width: 100%;
+                        height: 100%;
+                        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+                        transition: left 0.5s ease;
+                    }
+
+                    .btn-modern:hover::before {
+                        left: 100%;
+                    }
+
+                    .btn-modern:hover {
+                        transform: translateY(-2px);
+                        box-shadow: var(--shadow-lg);
+                    }
+
+                    .btn-primary-modern {
+                        background: linear-gradient(135deg, var(--secondary-color), var(--secondary-light));
+                        color: white;
+                    }
+
+                    .btn-primary-modern:hover {
+                        color: white;
+                        text-decoration: none;
+                    }
+
+                    .btn-success-modern {
+                        background: linear-gradient(135deg, var(--success-color), #2ecc71);
+                        color: white;
+                    }
+
+                    .btn-success-modern:hover {
+                        color: white;
+                        text-decoration: none;
+                    }
+
+                    .btn-warning-modern {
+                        background: linear-gradient(135deg, var(--warning-color), #f1c40f);
+                        color: white;
+                    }
+
+                    .btn-warning-modern:hover {
+                        color: white;
+                        text-decoration: none;
+                    }
+
+                    .btn-danger-modern {
+                        background: linear-gradient(135deg, var(--danger-color), #ec7063);
+                        color: white;
+                    }
+
+                    .btn-danger-modern:hover {
+                        color: white;
+                        text-decoration: none;
+                    }
+
+                    .btn-outline-modern {
+                        background: rgba(255, 255, 255, 0.9);
+                        border: 2px solid var(--gray-300);
+                        color: var(--gray-700);
+                    }
+
+                    .btn-outline-modern:hover {
+                        background: var(--secondary-color);
+                        border-color: var(--secondary-color);
+                        color: white;
+                        text-decoration: none;
+                    }
+
+                    .btn-light-modern {
+                        background: rgba(255, 255, 255, 0.15);
+                        border: 2px solid rgba(255, 255, 255, 0.25);
+                        color: var(--light-text);
+                        backdrop-filter: blur(10px);
+                    }
+
+                    .btn-light-modern:hover {
+                        background: rgba(255, 255, 255, 0.25);
+                        border-color: rgba(255, 255, 255, 0.4);
+                        color: var(--light-text);
+                        text-decoration: none;
+                    }
+
+                    .alert-modern {
+                        border-radius: 12px;
+                        border: none;
+                        padding: 1.5rem 2rem;
+                        margin-bottom: 2rem;
+                        position: relative;
+                        overflow: hidden;
+                    }
+
+                    .alert-success {
+                        background: linear-gradient(135deg, rgba(39, 174, 96, 0.1), rgba(46, 204, 113, 0.05));
+                        color: #1e6b3e;
+                        border-left: 4px solid var(--success-color);
+                    }
+
+                    .alert-error, .alert-danger {
+                        background: linear-gradient(135deg, rgba(231, 76, 60, 0.1), rgba(236, 112, 99, 0.05));
+                        color: #a93226;
+                        border-left: 4px solid var(--danger-color);
+                    }
+
+                    .alert-warning {
+                        background: linear-gradient(135deg, rgba(243, 156, 18, 0.1), rgba(241, 196, 15, 0.05));
+                        color: #b7950b;
+                        border-left: 4px solid var(--warning-color);
+                    }
+
+                    .alert-info {
+                        background: linear-gradient(135deg, rgba(23, 162, 184, 0.1), rgba(93, 173, 226, 0.05));
+                        color: #1b4f72;
+                        border-left: 4px solid var(--info-color);
+                    }
+
+                    .close-btn {
+                        position: absolute;
+                        top: 20px;
+                        right: 25px;
+                        background: none;
+                        border: none;
+                        font-size: 1.5rem;
+                        cursor: pointer;
+                        color: inherit;
+                        opacity: 0.7;
+                        transition: all 0.3s ease;
+                        width: 35px;
+                        height: 35px;
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-weight: bold;
+                    }
+
+                    .close-btn:hover {
+                        opacity: 1;
+                        background: rgba(0, 0, 0, 0.1);
+                        transform: rotate(90deg) scale(1.1);
+                    }
+
+                    .modal-modern .modal-content {
+                        border-radius: 20px;
+                        border: none;
+                        box-shadow: var(--shadow-xl);
+                        overflow: hidden;
+                    }
+
+                    .modal-modern .modal-header {
+                        background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+                        color: var(--light-text);
+                        border: none;
+                        padding: 2.5rem;
+                        position: relative;
+                        overflow: hidden;
+                    }
+
+                    .modal-modern .modal-header::before {
+                        content: '';
+                        position: absolute;
+                        top: -50%;
+                        right: -20%;
+                        width: 200px;
+                        height: 200px;
+                        background: rgba(255, 255, 255, 0.1);
+                        border-radius: 50%;
+                    }
+
+                    .modal-modern .modal-body {
+                        padding: 2.5rem;
+                        background: var(--card-bg);
+                    }
+
+                    .modal-modern .modal-footer {
+                        border: none;
+                        padding: 0 2.5rem 2.5rem 2.5rem;
+                        gap: 1rem;
+                        background: var(--card-bg);
+                    }
+
+                    .form-control-modern {
+                        border-radius: 10px;
+                        border: 2px solid var(--gray-300);
+                        padding: 14px 18px;
+                        transition: all 0.3s ease;
+                        font-size: 1rem;
+                        background: var(--card-bg);
+                    }
+
+                    .form-control-modern:focus {
+                        border-color: var(--secondary-color);
+                        box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.15);
+                        outline: none;
+                        background: var(--card-bg);
+                        transform: translateY(-1px);
+                    }
+
+                    .form-label {
+                        font-weight: 600;
+                        color: var(--gray-700);
+                        margin-bottom: 0.5rem;
+                        font-size: 0.95rem;
+                    }
+
+                    .empty-state {
+                        text-align: center;
+                        padding: 5rem 2rem;
+                        background: var(--card-bg);
+                        border-radius: 20px;
+                        border: 1px solid var(--gray-200);
+                    }
+
+                    .empty-state-icon {
+                        width: 140px;
+                        height: 140px;
+                        margin: 0 auto 2rem;
+                        background: linear-gradient(135deg, var(--gray-100), var(--gray-200));
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 3.5rem;
+                        color: var(--gray-600);
+                        position: relative;
+                        overflow: hidden;
+                    }
+
+                    .empty-state-icon::before {
+                        content: '';
+                        position: absolute;
+                        top: -50%;
+                        left: -50%;
+                        width: 100%;
+                        height: 100%;
+                        background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+                        animation: shimmer 2s infinite;
+                    }
+
+                    @keyframes shimmer {
+                        0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+                        100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+                    }
+
+                    .file-input-wrapper {
+                        position: relative;
+                        display: inline-block;
+                        cursor: pointer;
+                        width: 100%;
+                    }
+
+                    .file-input-wrapper input[type=file] {
+                        position: absolute;
+                        left: -9999px;
+                    }
+
+                    .file-input-label {
+                        display: block;
+                        padding: 16px 20px;
+                        border: 2px dashed var(--gray-300);
+                        border-radius: 10px;
+                        text-align: center;
+                        transition: all 0.3s ease;
+                        background: var(--gray-50);
+                        cursor: pointer;
+                    }
+
+                    .file-input-label:hover {
+                        border-color: var(--secondary-color);
+                        background: rgba(52, 152, 219, 0.05);
+                        transform: translateY(-2px);
+                    }
+
+                    .fade-in {
+                        animation: fadeIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                    }
+
+                    @keyframes fadeIn {
+                        from { 
+                            opacity: 0; 
+                            transform: translateY(30px) scale(0.95); 
+                        }
+                        to { 
+                            opacity: 1; 
+                            transform: translateY(0) scale(1); 
+                        }
+                    }
+
+                    .card-footer {
+                        background: var(--gray-50);
+                        border: none;
+                        padding: 1.5rem 2rem;
+                        margin-top: auto;
+                    }
+
+                    .text-muted {
+                        color: var(--gray-600) !important;
+                    }
+
+                    .small {
+                        font-size: 0.875rem;
+                    }
+
+                    .d-flex {
+                        display: flex;
+                    }
+
+                    .flex-column {
+                        flex-direction: column;
+                    }
+
+                    .justify-content-between {
+                        justify-content: space-between;
+                    }
+
+                    .align-items-center {
+                        align-items: center;
+                    }
+
+                    .gap-2 {
+                        gap: 0.5rem;
+                    }
+
+                    .w-100 {
+                        width: 100%;
+                    }
+
+                    .mb-0 { margin-bottom: 0; }
+                    .mb-2 { margin-bottom: 0.5rem; }
+                    .mb-3 { margin-bottom: 1rem; }
+                    .mb-4 { margin-bottom: 1.5rem; }
+                    .mr-2 { margin-right: 0.5rem; }
+                    .mr-3 { margin-right: 1rem; }
+                    .mt-2 { margin-top: 0.5rem; }
+                    .pt-0 { padding-top: 0; }
+                    .p-4 { padding: 1.5rem; }
+
+                    @media (max-width: 768px) {
+                        .main-container {
+                            margin: 1rem;
+                            border-radius: 16px;
+                        }
+                        
+                        .page-header {
+                            padding: 2rem;
+                            text-align: center;
+                        }
+
+                        .page-title {
+                            font-size: 2rem;
+                        }
+
+                        .content-wrapper {
+                            padding: 2rem;
+                        }
+                        
+                        .btn-modern {
+                            width: 100%;
+                            margin-bottom: 0.75rem;
+                        }
+
+                        .d-flex.flex-column .btn-modern:last-child {
+                            margin-bottom: 0;
+                        }
+
+                        .modal-modern .modal-header,
+                        .modal-modern .modal-body,
+                        .modal-modern .modal-footer {
+                            padding: 1.5rem;
+                        }
+
+                        .empty-state {
+                            padding: 3rem 1.5rem;
+                        }
+
+                        .empty-state-icon {
+                            width: 100px;
+                            height: 100px;
+                            font-size: 2.5rem;
+                        }
+                    }
+
+                    @media (max-width: 576px) {
+                        .main-container {
+                            margin: 0.5rem;
+                        }
+
+                        .page-header {
+                            padding: 1.5rem;
+                        }
+
+                        .page-title {
+                            font-size: 1.75rem;
+                        }
+
+                        .content-wrapper {
+                            padding: 1.5rem;
+                        }
+
+                        .card-body {
+                            padding: 1.5rem;
+                        }
+
+                        .card-footer {
+                            padding: 1rem 1.5rem;
+                        }
+                    }
+
+                    /* Detail page specific styles */
+                    .detail-container {
+                        background: var(--card-bg);
+                        border-radius: 20px;
+                        box-shadow: var(--shadow-xl);
+                        margin: 2rem auto;
+                        max-width: 900px;
+                        overflow: hidden;
+                    }
+
+                    .detail-header {
+                        background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+                        color: var(--light-text);
+                        padding: 3rem;
+                        position: relative;
+                        overflow: hidden;
+                    }
+
+                    .detail-header::before {
+                        content: '';
+                        position: absolute;
+                        top: -50%;
+                        right: -20%;
+                        width: 300px;
+                        height: 300px;
+                        background: rgba(255, 255, 255, 0.05);
+                        border-radius: 50%;
+                        transform: rotate(-15deg);
+                    }
+
+                    .detail-header h1 {
+                        font-weight: 800;
+                        font-size: 2.25rem;
+                        margin-bottom: 0.5rem;
+                        position: relative;
+                        z-index: 2;
+                        color: var(--light-text);
+                    }
+
+                    .detail-header p {
+                        font-size: 1.125rem;
+                        position: relative;
+                        z-index: 2;
+                        color: var(--light-text);
+                        opacity: 0.9;
+                    }
+
+                    .detail-content {
+                        padding: 3rem;
+                        background: var(--card-bg);
+                    }
+
+                    .detail-section {
+                        margin-bottom: 2rem;
+                    }
+
+                    .detail-section h6 {
+                        color: var(--gray-600);
+                        font-weight: 600;
+                        margin-bottom: 0.5rem;
+                        font-size: 0.875rem;
+                        text-transform: uppercase;
+                        letter-spacing: 0.05em;
+                    }
+
+                    .detail-section p {
+                        color: var(--gray-900);
+                        font-size: 1rem;
+                        margin-bottom: 0;
+                    }
+
+                    .actions-section {
+                        margin-top: 3rem;
+                        padding-top: 3rem;
+                        border-top: 2px solid var(--gray-200);
+                    }
+
+                    .job-description-section {
+                        margin: 0;
+                        padding: 3rem;
+                        background: var(--gray-50);
+                        border-top: 1px solid var(--gray-200);
+                    }
+
+                    .job-description-section h4 {
+                        color: var(--gray-900);
+                        margin-bottom: 1.5rem;
+                        font-weight: 700;
+                        font-size: 1.5rem;
+                    }
+
+                    .btn-back {
+                        background: var(--dark-bg);
+                        padding: 2rem 2rem 0;
+                    }
+
+                    /* Button sizes for action grids */
+                    .btn-sm-modern {
+                        padding: 8px 16px;
+                        font-size: 0.85rem;
+                    }
+
+                    .flex-fill {
+                        flex: 1;
+                    }
+                </style>
+            </t>
+            
+            <div id="wrap">
+                <div class="main-container fade-in">
+                    <!-- Page Header -->
+                    <div class="page-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h1 class="page-title">
+                                    <i class="fa fa-briefcase mr-3"></i>Mes Candidatures
+                                </h1>
+                                <p class="page-subtitle mb-0">Gérez et suivez vos candidatures en temps réel</p>
+                            </div>
+                            <a href="/jobs" class="btn btn-light-modern btn-modern d-none d-md-flex">
+                                <i class="fa fa-plus mr-2"></i>Nouvelle candidature
+                            </a>
+                        </div>
+                        <!-- Mobile button -->
+                        <div class="d-block d-md-none mt-2">
+                            <a href="/jobs" class="btn btn-light-modern btn-modern w-100">
+                                <i class="fa fa-plus mr-2"></i>Nouvelle candidature
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Content Wrapper -->
+                    <div class="content-wrapper">
+                        <!-- Messages -->
+                        <t t-call="new_page.message_alert_template"/>
+                        
+                        <!-- Applications Content -->
+                        <t t-if="not applicants">
+                            <t t-call="new_page.empty_applications_template"/>
+                        </t>
+                        <t t-else="">
+                            <t t-call="new_page.applications_grid_template"/>
+                        </t>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modification Modal -->
+            <t t-call="new_page.modify_application_modal_template"/>
+            
+            <!-- JavaScript -->
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Auto-hide success messages
+                    setTimeout(function() {
+                        const alert = document.querySelector('.alert-success');
+                        if (alert) {
+                            alert.style.transition = 'all 0.5s ease';
+                            alert.style.transform = 'translateY(-20px)';
+                            alert.style.opacity = '0';
+                            setTimeout(function() { 
+                                if (alert.parentNode) {
+                                    alert.parentNode.removeChild(alert);
+                                }
+                            }, 500);
+                        }
+                    }, 5000);
+
+                    // File input handling
+                    const fileInput = document.getElementById('attachment_ids');
+                    const fileLabel = document.querySelector('.file-input-label');
+                    
+                    if (fileInput &amp;&amp; fileLabel) {
+                        fileInput.addEventListener('change', function() {
+                            const fileName = this.files[0] ? this.files[0].name : 'Choisir un fichier';
+                            fileLabel.innerHTML = '<i class="fa fa-file mr-2"></i>' + fileName;
+                        });
+                    }
+
+                    // Add loading animation to buttons on click
+                    const buttons = document.querySelectorAll('.btn-modern');
+                    buttons.forEach(function(button) {
+                        button.addEventListener('click', function() {
+                            if (this.type === 'submit' || this.href) {
+                                this.style.opacity = '0.7';
+                                this.style.transform = 'scale(0.98)';
+                            }
+                        });
+                    });
+                });
+                
+                // Modal functions with proper event handling
+                function openModifyModal(button) {
+                    const data = button.dataset;
+                    const form = document.getElementById('modifyApplicationForm');
+                    
+                    // Populate form fields
+                    document.getElementById('partner_name').value = data.applicantName || '';
+                    document.getElementById('email_from').value = data.applicantEmail || '';
+                    document.getElementById('partner_phone').value = data.applicantPhone || '';
+                    document.getElementById('modal-job-name').textContent = data.jobName || '';
+                    
+                    // Set form action
+                    form.action = '/my/application/modify/' + data.applicantId;
+                    
+                    // Show modal using Bootstrap 4 syntax
+                    const modal = document.getElementById('modifyApplicationModal');
+                    if (window.jQuery &amp;&amp; window.jQuery.fn.modal) {
+                        window.jQuery('#modifyApplicationModal').modal('show');
+                    } else {
+                        modal.style.display = 'block';
+                        modal.classList.add('show');
+                    }
+                }
+                
+                // Close modal functions
+                function closeModal(modalId) {
+                    const modal = document.getElementById(modalId);
+                    if (window.jQuery &amp;&amp; window.jQuery.fn.modal) {
+                        window.jQuery('#' + modalId).modal('hide');
+                    } else {
+                        modal.style.display = 'none';
+                        modal.classList.remove('show');
+                    }
+                }
+                
+                // Form submission with loading state
+                function handleFormSubmit(form) {
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        const originalContent = submitBtn.innerHTML;
+                        
+                        submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>Sauvegarde...';
+                        submitBtn.disabled = true;
+                        
+                        // Re-enable button after 10 seconds as fallback
+                        setTimeout(function() {
+                            submitBtn.innerHTML = originalContent;
+                            submitBtn.disabled = false;
+                        }, 10000);
+                    }
+                    
+                    return true;
+                }
+            </script>
+        </t>
+    </template>
+
+    <!-- Message Alert Component -->
+    <template id="message_alert_template" name="Message Alert">
+        <t t-if="message">
+            <div t-attf-class="alert alert-#{message.get('type', 'info')} alert-modern position-relative">
+                <i t-attf-class="fa #{message.get('type') == 'success' and 'fa-check-circle' or message.get('type') == 'error' and 'fa-exclamation-triangle' or message.get('type') == 'warning' and 'fa-exclamation-circle' or 'fa-info-circle'} mr-3"></i>
+                <strong><t t-esc="message.get('message', '')"/></strong>
+                <button type="button" class="close-btn" onclick="this.parentElement.remove()">×</button>
+            </div>
+        </t>
+    </template>
+
+    <!-- Empty Applications Component -->
+    <template id="empty_applications_template" name="Empty Applications">
+        <div class="empty-state">
+            <div class="empty-state-icon">
+                <i class="fa fa-folder-open"></i>
+            </div>
+            <h3 style="color: var(--gray-700); margin-bottom: 1rem; font-weight: 700;">Aucune candidature trouvée</h3>
+            <p style="color: var(--gray-600); margin-bottom: 2rem; font-size: 1.125rem; line-height: 1.6;">
+                Commencez votre parcours professionnel en postulant à nos offres d'emploi.
+            </p>
+            <a href="/jobs" class="btn btn-primary-modern btn-modern" style="font-size: 1.1rem; padding: 16px 32px;">
+                <i class="fa fa-search mr-2"></i>Découvrir les offres
+            </a>
+        </div>
+    </template>
+
+    <!-- Applications Grid Component -->
+    <template id="applications_grid_template" name="Applications Grid">
+        <div class="row">
+            <t t-foreach="applicants" t-as="applicant">
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card application-card h-100">
+                        <div class="card-body">
+                            <!-- Job Title -->
+                            <h5 class="card-title" t-field="applicant.job_id.name"/>
+                            
+                            <!-- Department -->
+                            <p class="text-muted mb-3" t-if="applicant.job_id.department_id">
+                                <i class="fa fa-building mr-2"></i>
+                                <span t-field="applicant.job_id.department_id.name"/>
+                            </p>
+                            
+                            <!-- Status -->
+                            <div class="mb-3">
+                                <t t-call="new_page.status_badge_template">
+                                    <t t-set="stage_name" t-value="applicant.stage_id.name"/>
+                                </t>
+                            </div>
+                            
+                            <!-- Date -->
+                            <p class="text-muted small mb-4">
+                                <i class="fa fa-calendar mr-2"></i>
+                                Postulé le <span t-field="applicant.create_date" t-options="{'widget': 'date'}"/>
+                            </p>
+                        </div>
+                        
+                        <!-- Actions -->
+                        <div class="card-footer">
+                            <t t-call="new_page.application_actions_template">
+                                <t t-set="applicant" t-value="applicant"/>
+                            </t>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </div>
+    </template>
+
+    <!-- Status Badge Component -->
+    <template id="status_badge_template" name="Status Badge">
+        <t t-set="status_config" t-value="{
+            'Nouveau': {'color': '#6c757d', 'bg': '#f8f9fa', 'icon': 'fa-file-text'},
+            'Qualification initiale': {'color': '#17a2b8', 'bg': '#e7f7ff', 'icon': 'fa-search'},
+            'Consultant': {'color': '#27ae60', 'bg': '#e8f5e8', 'icon': 'fa-user-md'},
+            'Premier entretien': {'color': '#3498db', 'bg': '#e3f2fd', 'icon': 'fa-comments'},
+            'Second entretien': {'color': '#9b59b6', 'bg': '#f3e5f5', 'icon': 'fa-comments'},
+            'Proposition de contrat': {'color': '#f39c12', 'bg': '#fef9e7', 'icon': 'fa-file-contract'},
+            'Contrat signé': {'color': '#27ae60', 'bg': '#e8f5e8', 'icon': 'fa-check-circle'},
+            'Retiré': {'color': '#e74c3c', 'bg': '#fdeaea', 'icon': 'fa-ban'}
+        }"/>
+        <t t-set="config" t-value="status_config.get(stage_name, {'color': '#6c757d', 'bg': '#f8f9fa', 'icon': 'fa-question-circle'})"/>
+        
+        <span class="status-badge" 
+              t-attf-style="color: #{config['color']}; background-color: #{config['bg']};">
+            <i t-attf-class="fa #{config['icon']}"></i>
+            <span t-esc="stage_name"/>
+        </span>
+    </template>
+
+    <!-- Application Actions Component -->
+    <template id="application_actions_template" name="Application Actions">
+        <div class="d-flex flex-column gap-2">
+            <!-- View offer -->
+            <a t-if="applicant.job_id" 
+               t-attf-href="/jobs/detail/#{applicant.job_id.id}" 
+               class="btn btn-outline-modern btn-modern btn-sm-modern">
+                <i class="fa fa-eye mr-2"></i>Voir l'offre
+            </a>
+            
+            <!-- View details -->
+            <a t-attf-href="/my/application/#{applicant.id}" 
+               class="btn btn-primary-modern btn-modern btn-sm-modern">
+                <i class="fa fa-file-text-o mr-2"></i>Détails
+            </a>
+            
+            <!-- Action buttons row -->
+            <div class="d-flex gap-2 mt-2">
+                <!-- Modify (only for new applications) -->
+                <t t-if="applicant.stage_id.name == 'Nouveau'">
+                    <button type="button" 
+                            class="btn btn-success-modern btn-modern btn-sm-modern flex-fill" 
+                            onclick="openModifyModal(this)"
+                            t-att-data-applicant-id="applicant.id"
+                            t-att-data-applicant-name="applicant.partner_name"
+                            t-att-data-applicant-email="applicant.email_from"
+                            t-att-data-applicant-phone="applicant.partner_phone"
+                            t-att-data-job-name="applicant.job_id.name">
+                        <i class="fa fa-edit mr-2"></i>Modifier
+                    </button>
+                </t>
+                
+                <!-- Withdraw button for active applications -->
+                <t t-if="applicant.stage_id.name not in ['Contrat signé', 'Retiré']">
+                    <a t-attf-href="/my/application/withdraw/#{applicant.id}" 
+                       class="btn btn-warning-modern btn-modern btn-sm-modern flex-fill" 
+                       onclick="return confirm('Êtes-vous sûr de vouloir retirer cette candidature?')">
+                        <i class="fa fa-ban mr-2"></i>Retirer
+                    </a>
+                </t>
+                
+                <!-- Delete (for finished applications) -->
+                <t t-if="applicant.stage_id.name in ['Contrat signé', 'Retiré']">
+                    <a t-attf-href="/my/application/delete/#{applicant.id}" 
+                       class="btn btn-danger-modern btn-modern btn-sm-modern flex-fill" 
+                       onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette candidature?')">
+                        <i class="fa fa-trash mr-2"></i>Supprimer
+                    </a>
+                </t>
+            </div>
+        </div>
+    </template>
+
+    <!-- Modification Modal Component -->
+    <template id="modify_application_modal_template" name="Modify Application Modal">
+        <div class="modal fade modal-modern" id="modifyApplicationModal" tabindex="-1" role="dialog" aria-labelledby="modifyModalTitle" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <form id="modifyApplicationForm" method="post" enctype="multipart/form-data" onsubmit="return handleFormSubmit(this)">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        
+                        <div class="modal-header">
+                            <div>
+                                <h4 class="modal-title mb-2" id="modifyModalTitle" style="font-weight: 700;">
+                                    <i class="fa fa-edit mr-3"></i>Modifier ma candidature
+                                </h4>
+                                <p class="mb-0 opacity-90">Candidature pour: <strong id="modal-job-name">...</strong></p>
+                            </div>
+                            <button type="button" class="close-btn" onclick="closeModal('modifyApplicationModal')" style="color: white;" aria-label="Close">×</button>
+                        </div>
+                        
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="partner_name" class="form-label">Nom complet *</label>
+                                    <input type="text" class="form-control form-control-modern" id="partner_name" name="partner_name" required="required"/>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="email_from" class="form-label">Adresse email *</label>
+                                    <input type="email" class="form-control form-control-modern" id="email_from" name="email_from" required="required"/>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="partner_phone" class="form-label">Téléphone</label>
+                                    <input type="tel" class="form-control form-control-modern" id="partner_phone" name="partner_phone"/>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="linkedin_profile" class="form-label">Profil LinkedIn</label>
+                                    <input type="url" class="form-control form-control-modern" id="linkedin_profile" name="linkedin_profile" 
+                                           placeholder="https://linkedin.com/in/votre-profil"/>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="description" class="form-label">Lettre de motivation</label>
+                                <textarea class="form-control form-control-modern" id="description" name="description" rows="4" 
+                                          placeholder="Expliquez votre motivation et ce que vous pouvez apporter..."></textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">CV (optionnel)</label>
+                                <div class="file-input-wrapper">
+                                    <input type="file" id="attachment_ids" name="attachment_ids" accept=".pdf,.doc,.docx"/>
+                                    <label for="attachment_ids" class="file-input-label">
+                                        <i class="fa fa-cloud-upload mr-2"></i>Choisir un nouveau CV
+                                    </label>
+                                </div>
+                                <small class="text-muted">
+                                    <i class="fa fa-info-circle mr-1"></i>Formats acceptés: PDF, DOC, DOCX (max 10MB)
+                                </small>
+                            </div>
+                        </div>
+                        
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-modern btn-modern" onclick="closeModal('modifyApplicationModal')">
+                                <i class="fa fa-times mr-2"></i>Annuler
+                            </button>
+                            <button type="submit" class="btn btn-primary-modern btn-modern">
+                                <i class="fa fa-save mr-2"></i>Sauvegarder les modifications
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- Application Detail Template -->
+    <template id="application_detail_template" name="Application Details">
+        <t t-call="website.layout">
+            <t t-set="head">
+                <style>
+                    :root {
+                        --primary-color: #2c3e50;
+                        --primary-light: #34495e;
+                        --secondary-color: #3498db;
+                        --secondary-light: #5dade2;
+                        --success-color: #27ae60;
+                        --warning-color: #f39c12;
+                        --danger-color: #e74c3c;
+                        --info-color: #17a2b8;
+                        --light-text: #ecf0f1;
+                        --card-bg: #ffffff;
+                        --gray-50: #f8f9fa;
+                        --gray-200: #dee2e6;
+                        --gray-300: #ced4da;
+                        --gray-600: #6c757d;
+                        --gray-700: #495057;
+                        --gray-900: #212529;
+                        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+                        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+                        --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+                    }
+
+                    body {
+                        background: #f8f9fa;
+                        min-height: 100vh;
+                        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+                        margin: 0;
+                        padding: 0;
+                    }
+
+                    .detail-container {
+                        background: var(--card-bg);
+                        border-radius: 20px;
+                        box-shadow: var(--shadow-xl);
+                        margin: 2rem auto;
+                        max-width: 900px;
+                        overflow: hidden;
+                        position: relative;
+                    }
+
+                    .detail-container::before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        height: 4px;
+                        background: linear-gradient(90deg, var(--secondary-color), var(--secondary-light));
+                    }
+
+                    .detail-header {
+                        background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+                        color: var(--light-text);
+                        padding: 3rem;
+                        position: relative;
+                        overflow: hidden;
+                    }
+
+                    .detail-header::before {
+                        content: '';
+                        position: absolute;
+                        top: -50%;
+                        right: -20%;
+                        width: 300px;
+                        height: 300px;
+                        background: rgba(255, 255, 255, 0.05);
+                        border-radius: 50%;
+                        transform: rotate(-15deg);
+                    }
+
+                    .detail-header::after {
+                        content: '';
+                        position: absolute;
+                        bottom: -30%;
+                        left: -10%;
+                        width: 200px;
+                        height: 200px;
+                        background: rgba(255, 255, 255, 0.03);
+                        border-radius: 50%;
+                    }
+
+                    .detail-header h1 {
+                        font-weight: 800;
+                        font-size: 2.25rem;
+                        margin-bottom: 0.5rem;
+                        position: relative;
+                        z-index: 2;
+                        color: var(--light-text);
+                        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+                    }
+
+                    .detail-header p {
+                        font-size: 1.125rem;
+                        position: relative;
+                        z-index: 2;
+                        color: var(--light-text);
+                        opacity: 0.9;
+                    }
+
+                    .detail-content {
+                        padding: 3rem;
+                        background: var(--card-bg);
+                    }
+
+                    .detail-section {
+                        margin-bottom: 2rem;
+                    }
+
+                    .detail-section h6 {
+                        color: var(--gray-600);
+                        font-weight: 600;
+                        margin-bottom: 0.5rem;
+                        font-size: 0.875rem;
+                        text-transform: uppercase;
+                        letter-spacing: 0.05em;
+                    }
+
+                    .detail-section p {
+                        color: var(--gray-900);
+                        font-size: 1rem;
+                        margin-bottom: 0;
+                    }
+
+                    .actions-section {
+                        margin-top: 3rem;
+                        padding-top: 3rem;
+                        border-top: 2px solid var(--gray-200);
+                    }
+
+                    .job-description-section {
+                        margin: 0;
+                        padding: 3rem;
+                        background: var(--gray-50);
+                        border-top: 1px solid var(--gray-200);
+                    }
+
+                    .job-description-section h4 {
+                        color: var(--gray-900);
+                        margin-bottom: 1.5rem;
+                        font-weight: 700;
+                        font-size: 1.5rem;
+                    }
+
+                    .btn-back-container {
+                        background: #f8f9fa;
+                        padding: 2rem;
+                    }
+
+                    /* Modern Button Styles for Detail Page */
+                    .btn-modern {
+                        padding: 12px 24px;
+                        border-radius: 10px;
+                        font-weight: 600;
+                        font-size: 0.95rem;
+                        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                        border: none;
+                        position: relative;
+                        overflow: hidden;
+                        text-decoration: none;
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 8px;
+                        cursor: pointer;
+                        text-align: center;
+                        white-space: nowrap;
+                    }
+
+                    .btn-modern::before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: -100%;
+                        width: 100%;
+                        height: 100%;
+                        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+                        transition: left 0.5s ease;
+                    }
+
+                    .btn-modern:hover::before {
+                        left: 100%;
+                    }
+
+                    .btn-modern:hover {
+                        transform: translateY(-2px);
+                        box-shadow: var(--shadow-lg);
+                        text-decoration: none;
+                    }
+
+                    .btn-outline-modern {
+                        background: rgba(255, 255, 255, 0.9);
+                        border: 2px solid var(--gray-300);
+                        color: var(--gray-700);
+                    }
+
+                    .btn-outline-modern:hover {
+                        background: var(--secondary-color);
+                        border-color: var(--secondary-color);
+                        color: white;
+                        text-decoration: none;
+                    }
+
+                    .btn-primary-modern {
+                        background: linear-gradient(135deg, var(--secondary-color), var(--secondary-light));
+                        color: white;
+                    }
+
+                    .btn-primary-modern:hover {
+                        color: white;
+                        text-decoration: none;
+                    }
+
+                    .btn-warning-modern {
+                        background: linear-gradient(135deg, var(--warning-color), #f1c40f);
+                        color: white;
+                    }
+
+                    .btn-warning-modern:hover {
+                        color: white;
+                        text-decoration: none;
+                    }
+
+                    .btn-danger-modern {
+                        background: linear-gradient(135deg, var(--danger-color), #ec7063);
+                        color: white;
+                    }
+
+                    .btn-danger-modern:hover {
+                        color: white;
+                        text-decoration: none;
+                    }
+
+                    .btn-success-modern {
+                        background: linear-gradient(135deg, var(--success-color), #2ecc71);
+                        color: white;
+                    }
+
+                    .btn-success-modern:hover {
+                        color: white;
+                        text-decoration: none;
+                    }
+
+                    /* Status Badge Styles for Detail Page */
+                    .status-badge {
+                        padding: 10px 18px;
+                        border-radius: 25px;
+                        font-size: 0.875rem;
+                        font-weight: 600;
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 8px;
+                        text-transform: uppercase;
+                        letter-spacing: 0.025em;
+                        position: relative;
+                        overflow: hidden;
+                    }
+
+                    .status-badge::before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: -100%;
+                        width: 100%;
+                        height: 100%;
+                        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+                        transition: left 0.6s ease;
+                    }
+
+                    .status-badge:hover::before {
+                        left: 100%;
+                    }
+
+                    .fade-in {
+                        animation: fadeIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                    }
+
+                    @keyframes fadeIn {
+                        from { 
+                            opacity: 0; 
+                            transform: translateY(30px) scale(0.95); 
+                        }
+                        to { 
+                            opacity: 1; 
+                            transform: translateY(0) scale(1); 
+                        }
+                    }
+
+                    @media (max-width: 768px) {
+                        .detail-container {
+                            margin: 1rem;
+                            border-radius: 16px;
+                        }
+
+                        .detail-header {
+                            padding: 2rem;
+                            text-align: center;
+                        }
+
+                        .detail-header h1 {
+                            font-size: 1.75rem;
+                        }
+
+                        .detail-content {
+                            padding: 2rem;
+                        }
+
+                        .job-description-section {
+                            padding: 2rem;
+                        }
+
+                        .btn-back-container {
+                            padding: 1rem;
+                        }
+
+                        .btn-modern {
+                            width: 100%;
+                            margin-bottom: 0.75rem;
+                        }
+
+                        .actions-section .btn-modern:last-child {
+                            margin-bottom: 0;
+                        }
+                    }
+
+                    @media (max-width: 576px) {
+                        .detail-container {
+                            margin: 0.5rem;
+                        }
+
+                        .detail-header {
+                            padding: 1.5rem;
+                        }
+
+                        .detail-content {
+                            padding: 1.5rem;
+                        }
+
+                        .job-description-section {
+                            padding: 1.5rem;
+                        }
+                    }
+                </style>
+            </t>
+            
+            <div id="wrap">
+                <div class="btn-back-container">
+                    <a href="/candidate/applications" class="btn btn-outline-modern btn-modern">
+                        <i class="fa fa-arrow-left mr-2"></i>Retour aux candidatures
+                    </a>
+                </div>
+                
+                <div class="detail-container fade-in">
+                    <!-- Header -->
+                    <div class="detail-header">
+                        <h1 t-field="applicant.job_id.name"/>
+                        <p class="mb-0" t-if="applicant.job_id.department_id">
+                            <i class="fa fa-building mr-2"></i>
+                            <span t-field="applicant.job_id.department_id.name"/>
+                        </p>
+                    </div>
+                    
+                    <!-- Application Info -->
+                    <div class="detail-content">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="detail-section">
+                                    <h6>Statut</h6>
+                                    <t t-call="new_page.status_badge_template">
+                                        <t t-set="stage_name" t-value="applicant.stage_id.name"/>
+                                    </t>
+                                </div>
+                                <div class="detail-section">
+                                    <h6>Email</h6>
+                                    <p t-field="applicant.email_from"/>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="detail-section">
+                                    <h6>Date de candidature</h6>
+                                    <p t-field="applicant.create_date" t-options="{'widget': 'datetime'}"/>
+                                </div>
+                                <div class="detail-section" t-if="applicant.partner_phone">
+                                    <h6>Téléphone</h6>
+                                    <p t-field="applicant.partner_phone"/>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Actions -->
+                        <div class="actions-section">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <a t-if="applicant.job_id" 
+                                       t-attf-href="/jobs/detail/#{applicant.job_id.id}" 
+                                       class="btn btn-primary-modern btn-modern w-100">
+                                        <i class="fa fa-eye mr-2"></i>Voir l'offre
+                                    </a>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <!-- Edit button for "Nouveau" status -->
+                                    <t t-if="applicant.stage_id.name == 'Nouveau'">
+                                        <button type="button" 
+                                                class="btn btn-success-modern btn-modern w-100" 
+                                                onclick="openModifyModal(this)"
+                                                t-att-data-applicant-id="applicant.id"
+                                                t-att-data-applicant-name="applicant.partner_name"
+                                                t-att-data-applicant-email="applicant.email_from"
+                                                t-att-data-applicant-phone="applicant.partner_phone"
+                                                t-att-data-job-name="applicant.job_id.name">
+                                            <i class="fa fa-edit mr-2"></i>Modifier
+                                        </button>
+                                    </t>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <!-- Withdraw button for active applications -->
+                                    <t t-if="applicant.stage_id.name not in ['Contrat signé', 'Retiré']">
+                                        <a t-attf-href="/my/application/withdraw/#{applicant.id}" 
+                                           class="btn btn-warning-modern btn-modern w-100" 
+                                           onclick="return confirm('Êtes-vous sûr de vouloir retirer cette candidature?')">
+                                            <i class="fa fa-ban mr-2"></i>Retirer
+                                        </a>
+                                    </t>
+                                    <!-- Delete button for finished applications -->
+                                    <t t-if="applicant.stage_id.name in ['Contrat signé', 'Retiré']">
+                                        <a t-attf-href="/my/application/delete/#{applicant.id}" 
+                                           class="btn btn-danger-modern btn-modern w-100" 
+                                           onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette candidature?')">
+                                            <i class="fa fa-trash mr-2"></i>Supprimer
+                                        </a>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Job Description -->
+                    <div t-if="applicant.job_id.description" class="job-description-section">
+                        <h4>
+                            <i class="fa fa-file-text mr-2" style="color: var(--info-color);"></i>
+                            Description du poste
+                        </h4>
+                        <div t-field="applicant.job_id.description" style="line-height: 1.6;"/>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Include the modify modal and JavaScript from main template -->
+            <t t-call="new_page.modify_application_modal_template"/>
+            
+            <script>
+                // Modal functions with proper event handling
+                function openModifyModal(button) {
+                    const data = button.dataset;
+                    const form = document.getElementById('modifyApplicationForm');
+                    
+                    // Populate form fields
+                    document.getElementById('partner_name').value = data.applicantName || '';
+                    document.getElementById('email_from').value = data.applicantEmail || '';
+                    document.getElementById('partner_phone').value = data.applicantPhone || '';
+                    document.getElementById('modal-job-name').textContent = data.jobName || '';
+                    
+                    // Set form action
+                    form.action = '/my/application/modify/' + data.applicantId;
+                    
+                    // Show modal using Bootstrap 4 syntax
+                    const modal = document.getElementById('modifyApplicationModal');
+                    if (window.jQuery &amp;&amp; window.jQuery.fn.modal) {
+
+
+                        window.jQuery('#modifyApplicationModal').modal('show');
+                    } else {
+                        modal.style.display = 'block';
+                        modal.classList.add('show');
+                    }
+                }
+                
+                // Close modal functions
+                function closeModal(modalId) {
+                    const modal = document.getElementById(modalId);
+                    if (window.jQuery &amp;&amp; window.jQuery.fn.modal) {
+
+
+                        window.jQuery('#' + modalId).modal('hide');
+                    } else {
+                        modal.style.display = 'none';
+                        modal.classList.remove('show');
+                    }
+                }
+                
+                // Form submission with loading state
+                function handleFormSubmit(form) {
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        const originalContent = submitBtn.innerHTML;
+                        
+                        submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>Sauvegarde...';
+                        submitBtn.disabled = true;
+                        
+                        // Re-enable button after 10 seconds as fallback
+                        setTimeout(function() {
+                            submitBtn.innerHTML = originalContent;
+                            submitBtn.disabled = false;
+                        }, 10000);
+                    }
+                    
+                    return true;
+                }
+
+                // File input handling
+                document.addEventListener('DOMContentLoaded', function() {
+                    const fileInput = document.getElementById('attachment_ids');
+                    const fileLabel = document.querySelector('.file-input-label');
+                    
+                    if (fileInput &amp;&amp; fileLabel) {
+                        fileInput.addEventListener('change', function() {
+                            const fileName = this.files[0] ? this.files[0].name : 'Choisir un nouveau CV';
+                            fileLabel.innerHTML = '<i class="fa fa-file mr-2"></i>' + fileName;
+                        });
+                    }
+                });
+            </script>
+        </t>
+    </template>
+</odoo>

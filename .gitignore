@@ -1,13 +1,2 @@
-# .gitignore
-*.pyc
 __pycache__/
-*.swp
-*.log
-*.sqlite3
-.idea/
-.vscode/
-.env
-*.egg-info/
-*.zip
-addons/
-odoo/
+*.pyc

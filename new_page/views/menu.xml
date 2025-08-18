@@ -1,0 +1,11 @@
+<odoo>
+    <data>
+        <record id="menu_candidate_applications" model="website.menu">
+            <field name="name">Mes candidatures</field>
+            <field name="url">/candidate/applications</field>
+            <field name="parent_id" ref="website.main_menu"/> <!-- attach to main top menu -->
+            <field name="sequence">25</field> <!-- 20=Jobs, so 25 is right after -->
+            <field name="website_id" ref="website.default_website"/>
+        </record>
+    </data>
+</odoo>
