@@ -33,7 +33,7 @@ It enables employees to request leave, managers to approve or refuse requests, a
 
 ---
 
-# 📸 Module de Recruitment
+# 📸 Module de Recrutement
 
 ### Étapes
 
