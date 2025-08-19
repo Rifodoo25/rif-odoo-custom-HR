@@ -35,7 +35,17 @@ It enables employees to request leave, managers to approve or refuse requests, a
 
 # 📸 Module de Recrutement
 
-### Étapes
+## 🎯 Fonctionnalités
+Ce module de recrutement permet de :
+- 🌐 **Interface publique moderne** – Interface candidat élégante et responsive  
+- 📝 **Candidature en ligne** – Les candidats peuvent postuler directement depuis le site web  
+- 👤 **Gestion de profil** – Création et modification du profil candidat  
+- 📄 **Suivi des candidatures** – Les candidats peuvent suivre l'état de leurs candidatures  
+- ✏️ **Modification de candidature** – Possibilité de modifier les informations tant que la candidature est au statut "Nouveau"  
+- 📱 **Design responsive** – Interface optimisée pour tous les appareils  
+- 🎨 **Interface moderne** – Design épuré avec animations et effets visuels  
+
+### Étapes d'utilisation
 
 **1**  
 <p align="center">
@@ -160,4 +170,4 @@ Ce module est distribué sous licence LGPL-3.
 ---
 
 ## 📌 Note
-Ce module modifie le comportement standard d'Odoo pour les candidatures. Assurez-vous de tester en environnement de développement avant de déployer en production.
+Ce module modifie le comportement standard d'Odoo pour les candidatures. Assu-vous de tester en environnement de développement avant de déployer en production.
