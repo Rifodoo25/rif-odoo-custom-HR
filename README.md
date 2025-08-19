@@ -160,4 +160,4 @@ Ce module est distribué sous licence LGPL-3.
 ---
 
 ## 📌 Note
-Ce module modifie le comportement standard d'Odoo pour les candidatures. Assu-vous de tester en environnement de développement avant de déployer en production.
+Ce module modifie le comportement standard d'Odoo pour les candidatures. Assurez-vous de tester en environnement de développement avant de déployer en production.
