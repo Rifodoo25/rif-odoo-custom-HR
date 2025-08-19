@@ -1,0 +1,12 @@
+<odoo>
+    <record id="action_hr_leave_allocation_mass_wizard" model="ir.actions.act_window">
+        <field name="name" >Mass Leave Allocation</field>
+        <field name="res_model">hr.leave.allocation.mass.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+    <menuitem id="menu_hr_leave_allocation_mass_wizard"
+              name="Mass Leave Allocation"
+              parent="hr_holidays.menu_hr_holidays_root"
+              action="action_hr_leave_allocation_mass_wizard"/>
+</odoo>

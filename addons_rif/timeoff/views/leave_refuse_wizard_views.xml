@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_leave_refuse_wizard_form" model="ir.ui.view">
+        <field name="name">leave.refuse.wizard.form</field>
+        <field name="model">leave.refuse.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Refuser la demande de congé">
+                <div class="alert alert-warning" role="alert">
+                    <strong>Attention :</strong> Vous êtes sur le point de refuser cette demande de congé.
+                    Veuillez indiquer la raison de ce refus.
+                </div>
+                <group>
+                    <field name="reason" nolabel="1" 
+                           widget="text"/>
+                </group>
+                <footer>
+                    <button name="action_refuse" string="Confirmer le Refus" 
+                            type="object" class="btn-danger"/>
+                    <button string="Annuler" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_leave_refuse_wizard" model="ir.actions.act_window">
+        <field name="name">Refuser la demande</field>
+        <field name="res_model">leave.refuse.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_leave_refuse_wizard_form"/>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="hr_holidays.model_hr_leave"/>
+    </record>
+</odoo>

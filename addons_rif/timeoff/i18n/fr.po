@@ -1,0 +1,5 @@
+#. module: your_module_name
+#: model:ir.actions.act_window,name:your_module_name.action_hr_leave_allocation_mass_wizard
+#: model:ir.ui.menu,name:your_module_name.menu_hr_leave_allocation_mass_wizard
+msgid "Mass Leave Allocation"
+msgstr "Attribution de congés en masse"
