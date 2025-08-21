@@ -6,7 +6,7 @@
     "category": "Human Resources",
     "author": "Ton Nom ou Groupe",
     "website": "https://tonsite.com",
-    "depends": ["base","hr","hr_holidays","mail","portal","calendar"],
+    "depends": ["base","hr","hr_holidays","mail","portal","calendar","board","web"],
     "data": [
         'security/ir.model.access.csv',
         'views/leave_refuse_wizard_views.xml',
