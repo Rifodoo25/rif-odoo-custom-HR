@@ -12,6 +12,6 @@ class LeaveRefuseWizard(models.TransientModel):
         leave = self.env['hr.leave'].browse(self.env.context.get('active_id'))
         if leave:
             leave.write({'refuse_reason': self.reason})
-            # IMPORTANT: flag pour éviter de reboucler et rouvrir le wizard
+            
             return leave.with_context(from_refuse_wizard=True).action_refuse()
         return {'type': 'ir.actions.act_window_close'}

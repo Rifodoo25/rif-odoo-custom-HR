@@ -15,7 +15,7 @@ class HrLeaveAllocationRule(models.Model):
         if not self.active or not employee.department_id or employee.department_id.id not in self.department_ids.ids:
             return False
             
-        # Vérifier si l'employé n'a pas déjà cette allocation (recherche plus stricte)
+       
         existing_allocation = self.env['hr.leave.allocation'].sudo().search([
             ('employee_id', '=', employee.id),
             ('holiday_status_id', '=', self.holiday_status_id.id),
@@ -25,10 +25,8 @@ class HrLeaveAllocationRule(models.Model):
         ], limit=1)
         
         if existing_allocation:
-            # L'employé a déjà une allocation pour ce type de congé
             return False
             
-        # Vérifier s'il y a déjà une allocation créée par cette règle (éviter les doublons)
         auto_allocation = self.env['hr.leave.allocation'].sudo().search([
             ('employee_id', '=', employee.id),
             ('holiday_status_id', '=', self.holiday_status_id.id),
@@ -36,10 +34,9 @@ class HrLeaveAllocationRule(models.Model):
         ], limit=1)
         
         if auto_allocation:
-            # Une auto-allocation existe déjà
             return False
             
-        # Créer l'allocation avec une requête SQL directe pour éviter les validations
+
         try:
             self.env.cr.execute("""
                 INSERT INTO hr_leave_allocation 
@@ -52,18 +49,17 @@ class HrLeaveAllocationRule(models.Model):
                 self.holiday_status_id.id,
                 self.number_of_days,
                 'validate',
-                fields.Date.today(),
-                fields.Date.today().replace(year=fields.Date.today().year + 1),
+                #fields.Date.today(),
+                #fields.Date.today().replace(year=fields.Date.today().year + 1),
                 self.env.uid,
                 self.env.uid,
                 'regular'
             ))
             
-            # Commit pour s'assurer que l'insertion est persistée
+
             self.env.cr.commit()
             return True
             
         except Exception as e:
-            # En cas d'erreur, rollback
             self.env.cr.rollback()
             return False

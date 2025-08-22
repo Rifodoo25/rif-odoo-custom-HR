@@ -8,7 +8,7 @@
                 <group>
                     <field name="holiday_status_id" string="Leave Type"/>
                     <field name="number_of_days" string="Number of Days"/>
-                    <field name="auto_allocate_new_employees" string="Auto-allocate to new employees"/>
+                    <field name="auto_allocate_new_employees" invisible="1"  string="Auto-allocate to new employees"/>
                     <field name="department_ids" string="Departments" widget="many2many_tags"/>
                 </group>
                 <footer>

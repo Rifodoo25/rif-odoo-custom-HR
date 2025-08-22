@@ -6,7 +6,7 @@
         <field name="inherit_id" ref="hr_holidays.hr_leave_view_form"/>
         <field name="arch" type="xml">
 
-            <!-- Remplacer le bouton core par l'ouverture du wizard -->
+            
             <xpath expr="//button[@name='action_refuse']" position="replace">
                 <button name="%(timeoff.action_leave_refuse_wizard)d"
                         string="Refuser"
