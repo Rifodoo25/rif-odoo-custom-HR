@@ -15,10 +15,7 @@
                         modifiers='{"invisible": [["state","not in",["confirm","validate1"]]]}'/>
             </xpath>
 
-            <!-- Afficher la raison en lecture seule -->
-            <!-- <xpath expr="//field[@name='name']" position="after">
-                <field name="refuse_reason" readonly="1"/>
-            </xpath> -->
+           
             <xpath expr="//field[@name='name']" position="after">
                 <field name="refuse_reason" 
                        readonly="1"

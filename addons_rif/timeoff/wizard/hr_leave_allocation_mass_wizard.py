@@ -85,7 +85,6 @@ class HrLeaveAllocationMassWizard(models.TransientModel):
             self._create_auto_allocation_rule()
 
         return {
-            # 'type': 'ir.actions.client',
             'type': 'ir.actions.act_window_close',
             'tag': 'display_notification',
             'params': {
