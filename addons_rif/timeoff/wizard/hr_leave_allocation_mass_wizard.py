@@ -18,10 +18,14 @@ class HrLeaveAllocationMassWizard(models.TransientModel):
     )
 
     def action_allocate(self):
+
+        if self.number_of_days <= 0:
+            raise UserError(_("Le champ 'Nombre de jours' est obligatoire et doit être supérieur à 0."))
+        
         if not self.department_ids:
             raise UserError(_("Veuillez sélectionner au moins un département."))
 
-        
+
         employees = self.env['hr.employee'].search([
             ('department_id', 'in', self.department_ids.ids)
         ])
@@ -50,8 +54,6 @@ class HrLeaveAllocationMassWizard(models.TransientModel):
                     'holiday_status_id': self.holiday_status_id.id,
                     'number_of_days': self.number_of_days,
                     'allocation_type': 'regular',  # Type d'allocation
-                    #'date_from': fields.Date.today(),
-                    #'date_to': fields.Date.today().replace(year=fields.Date.today().year + 1),
                 }
                 
                 try:
@@ -83,7 +85,8 @@ class HrLeaveAllocationMassWizard(models.TransientModel):
             self._create_auto_allocation_rule()
 
         return {
-            'type': 'ir.actions.client',
+            # 'type': 'ir.actions.client',
+            'type': 'ir.actions.act_window_close',
             'tag': 'display_notification',
             'params': {
                 'title': _('Succès'),
@@ -109,19 +112,3 @@ class HrLeaveAllocationMassWizard(models.TransientModel):
                 'number_of_days': self.number_of_days,
                 'active': True,
             })
-'''
-    def action_allocate(self):
-        domain = [('active', '=', True)]
-        if self.department_ids:
-            domain.append(('department_id', 'in', self.department_ids.ids))
-        employees = self.env['hr.employee'].search(domain)
-        if not employees:
-            raise UserError(_("Aucun employé trouvé pour l'allocation."))
-        for emp in employees:
-            allocation = self.env['hr.leave.allocation'].create({
-                'employee_id': emp.id,
-                'holiday_status_id': self.holiday_status_id.id,
-                'number_of_days': self.number_of_days,
-            })
-            allocation.action_validate()
-        return {'type': 'ir.actions.act_window_close'}'''

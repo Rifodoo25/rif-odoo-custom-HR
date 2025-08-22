@@ -16,9 +16,14 @@
             </xpath>
 
             <!-- Afficher la raison en lecture seule -->
-            <xpath expr="//field[@name='name']" position="after">
+            <!-- <xpath expr="//field[@name='name']" position="after">
                 <field name="refuse_reason" readonly="1"/>
-            </xpath>
+            </xpath> -->
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="refuse_reason" 
+                       readonly="1"
+                       modifiers='{"invisible": [["refuse_reason","=",false]]}'/>
+            </xpath>
         </field>
     </record>
 </odoo>
