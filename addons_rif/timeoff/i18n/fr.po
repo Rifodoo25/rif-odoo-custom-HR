@@ -1,5 +1,127 @@
-#. module: your_module_name
-#: model:ir.actions.act_window,name:your_module_name.action_hr_leave_allocation_mass_wizard
-#: model:ir.ui.menu,name:your_module_name.menu_hr_leave_allocation_mass_wizard
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* timeoff
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-08-21 12:01+0000\n"
+"PO-Revision-Date: 2025-08-21 12:01+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#. module: timeoff
+#: model_terms:ir.ui.view,arch_db:timeoff.view_hr_leave_allocation_mass_wizard_form
+msgid "Allocate to All"
+msgstr "Allouer à tous"
+
+#. module: timeoff
+#: model_terms:ir.ui.view,arch_db:timeoff.view_hr_leave_allocation_mass_wizard_form
+msgid "Cancel"
+msgstr "Annuler"
+
+#. module: timeoff
+#: model_terms:ir.ui.view,arch_db:timeoff.view_hr_leave_allocation_mass_wizard_form
 msgid "Mass Leave Allocation"
-msgstr "Attribution de congés en masse"
+msgstr "Allocation massive de congés"
+
+#. module: timeoff
+#: model:ir.model.fields,field_description:timeoff.field_hr_leave_allocation_mass_wizard__holiday_status_id
+msgid "Leave Type"
+msgstr "Type de congé"
+
+#. module: timeoff
+#: model:ir.model.fields,field_description:timeoff.field_hr_leave_allocation_mass_wizard__number_of_days
+msgid "Number of Days"
+msgstr "Nombre de jours"
+
+#. module: timeoff
+#: model:ir.model.fields,field_description:timeoff.field_hr_leave_allocation_mass_wizard__department_ids
+msgid "Departments"
+msgstr "Départements"
+
+#. module: timeoff
+#: model:ir.model.fields,field_description:timeoff.field_hr_department__name
+msgid "Department Name"
+msgstr "Nom du département"
+
+#. module: timeoff
+#: model:ir.model.fields,field_description:timeoff.field_hr_department__manager_id
+msgid "Manager"
+msgstr "Responsable"
+
+#. module: timeoff
+#: model:ir.model.fields,field_description:timeoff.field_hr_department__member_ids
+msgid "Employees"
+msgstr "Employés"
+
+#. module: timeoff
+#: model:ir.model.fields,field_description:timeoff.field_hr_department__parent_id
+msgid "Parent Department"
+msgstr "Département parent"
+
+#. module: timeoff
+#: model:ir.model.fields,field_description:timeoff.field_hr_department__color
+msgid "Color"
+msgstr "Couleur"
+
+#. module: timeoff
+#: model_terms:ir.ui.view,arch_db:timeoff.view_hr_leave_form
+msgid "Add a line"
+msgstr "Ajouter une ligne"
+
+#. module: timeoff
+#: model:ir.model.fields,field_description:timeoff.field_leave_refuse_wizard__reason
+msgid "Reason"
+msgstr "Raison"
+
+#. module: timeoff
+#: model:ir.model.fields,field_description:timeoff.field_hr_leave__refuse_reason
+msgid "Refuse Reason"
+msgstr "Raison du refus"
+
+#. module: timeoff
+#: model_terms:ir.ui.view,arch_db:timeoff.view_leave_refuse_wizard_form
+msgid "Refuse"
+msgstr "Refuser"
+#. module: timeoff
+#: model_terms:ir.ui.view,arch_db:timeoff.view_hr_leave_allocation_mass_wizard_form
+msgid "Mass Leave Allocation"
+msgstr "Allocation massive de congés"
+
+#. module: timeoff
+#: model_terms:ir.ui.view,arch_db:timeoff.view_hr_leave_allocation_mass_wizard_form
+msgid "Leave Type"
+msgstr "Type de congé"
+
+#. module: timeoff
+#: model_terms:ir.ui.view,arch_db:timeoff.view_hr_leave_allocation_mass_wizard_form
+msgid "Number of Days"
+msgstr "Nombre de jours"
+
+#. module: timeoff
+#: model_terms:ir.ui.view,arch_db:timeoff.view_hr_leave_allocation_mass_wizard_form
+msgid "Departments"
+msgstr "Départements"
+
+#. module: timeoff
+#: model_terms:ir.ui.view,arch_db:timeoff.view_hr_leave_allocation_mass_wizard_form
+msgid "Department Name"
+msgstr "Nom du département"
+#. module: timeoff
+#: model:ir.actions.act_window,name:timeoff.action_hr_leave_allocation_mass_wizard
+#: model:ir.ui.menu,name:timeoff.menu_hr_leave_allocation_mass_wizard
+#: model_terms:ir.ui.view,arch_db:timeoff.view_hr_leave_allocation_mass_wizard_form
+msgid "Mass Leave Allocation"
+msgstr "Allocation de congés en masse"
+
+#. module: timeoff
+#: model:ir.model,name:timeoff.model_hr_leave_allocation_mass_wizard
+msgid "Mass Leave Allocation Wizard"
+msgstr "Assistant d’allocation de congés en masse"

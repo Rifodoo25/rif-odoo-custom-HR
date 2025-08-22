@@ -1,42 +1,93 @@
 from odoo import api, models, fields, _
 from odoo.exceptions import UserError , ValidationError
+from datetime import datetime, date 
 
 class HrLeave(models.Model):
     _inherit = 'hr.leave'
 
     refuse_reason = fields.Text(string="Raison du refus")
+    
+
+    def _convert_to_date(self, date_value):
+        """Convertir datetime en date si nécessaire"""
+        if isinstance(date_value, datetime):
+            return date_value.date()
+        elif isinstance(date_value, date):
+            return date_value
+        return date_value
+    
+
+    def _get_refuse_wizard_action(self):
+        """Retourne l'action qui ouvre le wizard de refus pour l'enregistrement courant."""
+        self.ensure_one()
+        action = self.env.ref('timeoff.action_leave_refuse_wizard').read()[0]
+
+        action['context'] = {
+            **self._context,
+            'active_id': self.id,
+            'active_ids': [self.id],
+            'active_model': 'hr.leave',
+        }
+        return action
+
 
     def action_refuse(self):
-        """Surcharge pour inclure la raison du refus dans les notifications"""
+        """
+        Si appelé depuis la liste (ou n'importe où) SANS passer par le wizard,
+        on ouvre le wizard. Si appelé depuis le wizard (context flag), on refuse vraiment.
+        """
+
+        refusables = {'confirm', 'validate1', 'validate'}
+        if any(r.state not in refusables for r in self):
+
+            if not self.env.context.get('from_refuse_wizard'):
+                return False
+            raise UserError(_("Cette demande n'est pas dans un état refus-able."))
+
+
+        if not self.env.context.get('from_refuse_wizard'):
+
+            return self._get_refuse_wizard_action()
+
+
         current_employee = self.env.user.employee_id
-        if any(holiday.state not in ['confirm', 'validate', 'validate1'] for holiday in self):
-            raise UserError(_('Time off request must be confirmed or validated in order to refuse it.'))
+
 
         self._notify_manager()
         validated_holidays = self.filtered(lambda hol: hol.state == 'validate1')
-        validated_holidays.write({'state': 'refuse', 'first_approver_id': current_employee.id})
-        (self - validated_holidays).write({'state': 'refuse', 'second_approver_id': current_employee.id})
+        validated_holidays.write({
+            'state': 'refuse',
+            'first_approver_id': current_employee.id
+        })
+        (self - validated_holidays).write({
+            'state': 'refuse',
+            'second_approver_id': current_employee.id
+        })
         self.mapped('meeting_id').write({'active': False})
 
-        # Message simple avec la raison - UN SEUL EMAIL
+
         for holiday in self:
             if holiday.employee_id.user_id:
                 body = _('Votre %(leave_type)s prévu le %(date)s a été refusé.') % {
                     'leave_type': holiday.holiday_status_id.display_name,
-                    'date': holiday.date_from.strftime('%d/%m/%Y') if holiday.date_from else 'N/A'
+                    'date': holiday.date_from.strftime('%d/%m/%Y') if holiday.date_from else 'N/A',
                 }
-                
-                # Ajouter la raison si elle existe
                 if holiday.refuse_reason:
-                    body += _('Raison : %s') % holiday.refuse_reason
-                
-                holiday.message_post(
+                    body += ' ' + _('Raison : %s') % holiday.refuse_reason
+
+                holiday.with_context(tracking_disable=True, mail_notrack=True).message_post(
                     body=body,
-                    partner_ids=holiday.employee_id.user_id.partner_id.ids
+                    partner_ids=holiday.employee_id.user_id.partner_id.ids,
                 )
 
         self.activity_update()
         return True
+
+
+    @api.onchange('state')
+    def _onchange_state(self):
+        if self.state != 'refuse':
+            self.refuse_reason = False
     
     def _validate_leave_request(self):
         """Surcharge pour désactiver l'email automatique d'approbation"""
@@ -63,7 +114,7 @@ class HrLeave(models.Model):
         for meeting in meetings:
             Holiday.browse(meeting.res_id).meeting_id = meeting
 
-        # Email personnalisé avec désactivation du tracking
+
         for holiday in holidays:
             if holiday.employee_id.user_id:
                 user_tz = timezone(holiday.tz)
@@ -74,7 +125,7 @@ class HrLeave(models.Model):
                     'date': utc_tz.strftime('%d/%m/%Y')
                 }
                 
-                # DÉSACTIVER LE TRACKING pour éviter le 2ème email
+
                 holiday.with_context(tracking_disable=True, mail_notrack=True).message_post(
                     body=body,
                     partner_ids=holiday.employee_id.user_id.partner_id.ids
@@ -82,9 +133,9 @@ class HrLeave(models.Model):
 
     def write(self, values):
         """Surcharger write pour désactiver le tracking sur le champ state"""
-        # Si on modifie le state, désactiver le tracking
+
         if 'state' in values and values.get('state') in ['validate', 'validate1']:
-            # Désactiver le tracking pour éviter l'email automatique
+
             return super(HrLeave, self.with_context(
                 tracking_disable=True,
                 mail_notrack=True
@@ -93,10 +144,10 @@ class HrLeave(models.Model):
     
 
     def action_validate(self, check_state=True):
-        # Récupérer l'objet correspondant au congé maladie (par ID XML)
+
         sick_leave_type = self.env.ref('hr_holidays.holiday_status_sl', raise_if_not_found=False)
 
-        # Limitation des congés maladie à 5 jours par année
+
         for leave in self:
             if sick_leave_type and leave.holiday_status_id.id == sick_leave_type.id:
                 year = leave.date_from.year
@@ -109,7 +160,7 @@ class HrLeave(models.Model):
                 ]
                 sick_leaves = self.search(domain)
 
-                # Calcul des jours déjà pris (hors celui en cours si pas encore validé)
+
                 total_sick_days = sum(l.number_of_days for l in sick_leaves if l.id != leave.id)
                 if leave.state not in ['validate', 'validate1']:
                     total_sick_days += leave.number_of_days
@@ -150,10 +201,10 @@ class HrLeave(models.Model):
     @api.constrains('holiday_status_id', 'employee_id', 'date_from', 'date_to', 'number_of_days')
     def _check_sick_leave_limit(self):
         sick_leave_type = self.env.ref('hr_holidays.holiday_status_sl', raise_if_not_found=False)
-        paid_leave_type = self.env.ref('hr_holidays.holiday_status_cl', raise_if_not_found=False)  # <-- Utilisation de l'ID XML
+        paid_leave_type = self.env.ref('hr_holidays.holiday_status_cl', raise_if_not_found=False)  
 
         for leave in self:
-            # --- Limite congé maladie ---
+
             if sick_leave_type and leave.holiday_status_id.id == sick_leave_type.id:
                 year = leave.date_from.year
                 domain = [
@@ -169,7 +220,7 @@ class HrLeave(models.Model):
                 if total_sick_days > 5:
                     raise ValidationError(_("Impossible d'envoyer la demande : le congé maladie est limité à 5 jours par année."))
 
-            # --- Limite congé payé ---
+
             if paid_leave_type and leave.holiday_status_id.id == paid_leave_type.id:
                 year = leave.date_from.year
                 domain = [
@@ -188,14 +239,84 @@ class HrLeave(models.Model):
     @api.constrains('employee_id', 'holiday_status_id', 'date_from', 'date_to')
     def _check_allocation_period(self):
         for leave in self:
-            allocation = self.env['hr.leave.allocation'].search([
-                ('employee_id', '=', leave.employee_id.id),
-                ('holiday_status_id', '=', leave.holiday_status_id.id),
-                ('state', '=', 'validate'),
-                ('date_from', '<=', leave.date_from),
-                ('date_to', '>=', leave.date_to),
-            ], limit=1)
-            if not allocation:
-                raise ValidationError(_(
-                    "Impossible d'envoyer la demande : la période demandée dépasse la période programmée dans l'allocation."
-                ))
+            if leave.holiday_status_id.requires_allocation == 'yes':
+                allocation = self.env['hr.leave.allocation'].search([
+                    ('employee_id', '=', leave.employee_id.id),
+                    ('holiday_status_id', '=', leave.holiday_status_id.id),
+                    ('state', '=', 'validate'),
+                ], limit=1)
+
+                if allocation:
+                    # Vérifier seulement si l'allocation a des dates définies
+                    if allocation.date_from and allocation.date_to:
+                        # Convertir les dates pour la comparaison
+                        alloc_from = self._convert_to_date(allocation.date_from)
+                        alloc_to = self._convert_to_date(allocation.date_to)
+                        leave_from = self._convert_to_date(leave.date_from)
+                        leave_to = self._convert_to_date(leave.date_to)
+                        
+                        if not (alloc_from <= leave_from and alloc_to >= leave_to):
+                            raise ValidationError(_("Impossible d'envoyer la demande : la période demandée dépasse la période programmée dans l'allocation."))
+                    # Si pas de dates sur l'allocation, c'est une allocation permanente -> OK
+                else:
+                    raise ValidationError(_("Aucune allocation valide trouvée pour ce type de congé."))
+    
+    @api.model_create_multi
+    def create(self, vals_list):
+        holidays = super(HrLeave, self).create(vals_list)
+        admin_user = self.env.ref('base.user_admin', raise_if_not_found=False)
+
+        
+        types_sans_email = [
+            'hr_holidays.holiday_status_cl',
+            'hr_holidays.holiday_status_sl',
+            'hr_holidays.holiday_status_unpaid',
+            'hr_holidays.holiday_status_comp',
+           # 'hr_holidays_attendance.holiday_status_extra_hours',
+            'hr_holidays.hr_holiday_status_dv',
+            'hr_holidays.holiday_status_training',
+        ]
+
+        for holiday in holidays:
+            if not holiday.holiday_status_id:
+                continue
+
+
+            if any(holiday.holiday_status_id.id == self.env.ref(xml_id).id for xml_id in types_sans_email):
+                continue
+
+            employee = holiday.employee_id
+            manager_partner = (
+                employee.parent_id.user_id.partner_id
+                if employee.parent_id and employee.parent_id.user_id
+                else None
+            )
+
+            partner_ids_to_subscribe = set()
+            if admin_user and admin_user.partner_id:
+                partner_ids_to_subscribe.add(admin_user.partner_id.id)
+            if manager_partner:
+                partner_ids_to_subscribe.add(manager_partner.id)
+
+            existing_followers = set(holiday.message_follower_ids.mapped('partner_id').ids)
+            new_followers = list(partner_ids_to_subscribe - existing_followers)
+            if new_followers:
+                holiday.message_subscribe(partner_ids=new_followers)
+
+            holiday.with_context().message_post(
+                body=_(
+                    "Nouvelle demande de congé :\n"
+                    "- Employé : %(employee)s\n"
+                    "- Type de congé : %(type)s\n"
+                    "- Du : %(date_from)s\n"
+                    "- Au : %(date_to)s"
+                ) % {
+                    'employee': employee.name,
+                    'type': holiday.holiday_status_id.name,
+                    'date_from': holiday.request_date_from.strftime('%d/%m/%Y') if holiday.request_date_from else 'N/A',
+                    'date_to': holiday.request_date_to.strftime('%d/%m/%Y') if holiday.request_date_to else 'N/A',
+                },
+                subtype_xmlid='mail.mt_comment',
+            )
+
+        return holidays

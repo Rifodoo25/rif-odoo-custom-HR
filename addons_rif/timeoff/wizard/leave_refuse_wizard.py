@@ -8,13 +8,10 @@ class LeaveRefuseWizard(models.TransientModel):
                         help="Expliquez pourquoi cette demande est refusée...")
 
     def action_refuse(self):
-        """Refuse le congé avec la raison saisie"""
-        active_id = self.env.context.get('active_id')
-        if active_id:
-            leave = self.env['hr.leave'].browse(active_id)
-            # Sauvegarder la raison
-            leave.refuse_reason = self.reason
-            # Appeler la méthode de refus (qui gère tout automatiquement)
-            leave.action_refuse()
+        """Enregistre la raison puis déclenche le refus réel."""
+        leave = self.env['hr.leave'].browse(self.env.context.get('active_id'))
+        if leave:
+            leave.write({'refuse_reason': self.reason})
             
+            return leave.with_context(from_refuse_wizard=True).action_refuse()
         return {'type': 'ir.actions.act_window_close'}

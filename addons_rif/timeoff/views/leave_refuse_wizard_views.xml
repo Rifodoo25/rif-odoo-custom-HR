@@ -6,17 +6,16 @@
         <field name="arch" type="xml">
             <form string="Refuser la demande de congé">
                 <div class="alert alert-warning" role="alert">
-                    <strong>Attention :</strong> Vous êtes sur le point de refuser cette demande de congé.
-                    Veuillez indiquer la raison de ce refus.
+                    <strong>Attention :</strong>
+                    Vous êtes sur le point de refuser cette demande de congé. Indiquez la raison.
                 </div>
                 <group>
-                    <field name="reason" nolabel="1" 
-                           widget="text"/>
+                    <field name="reason" nolabel="1" widget="text"/>
                 </group>
                 <footer>
-                    <button name="action_refuse" string="Confirmer le Refus" 
-                            type="object" class="btn-danger"/>
-                    <button string="Annuler" special="cancel" class="btn-secondary"/>
+                    <button name="action_refuse" string="Confirmer le refus"
+                            type="object" class="btn btn-danger"/>
+                    <button string="Annuler" special="cancel" class="btn btn-secondary"/>
                 </footer>
             </form>
         </field>
@@ -28,6 +27,5 @@
         <field name="view_mode">form</field>
         <field name="view_id" ref="view_leave_refuse_wizard_form"/>
         <field name="target">new</field>
-        <field name="binding_model_id" ref="hr_holidays.model_hr_leave"/>
     </record>
 </odoo>
