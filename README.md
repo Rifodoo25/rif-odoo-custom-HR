@@ -33,141 +33,263 @@ It enables employees to request leave, managers to approve or refuse requests, a
 
 ---
 
-# 📸 Module de Recrutement
+# 📸 Module de Recrutement Odoo
 
-## 🎯 Fonctionnalités
-Ce module de recrutement permet de :
-- 🌐 **Interface publique moderne** – Interface candidat élégante et responsive  
-- 📝 **Candidature en ligne** – Les candidats peuvent postuler directement depuis le site web  
-- 👤 **Gestion de profil** – Création et modification du profil candidat  
-- 📄 **Suivi des candidatures** – Les candidats peuvent suivre l'état de leurs candidatures  
-- ✏️ **Modification de candidature** – Possibilité de modifier les informations tant que la candidature est au statut "Nouveau"  
-- 📱 **Design responsive** – Interface optimisée pour tous les appareils  
-- 🎨 **Interface moderne** – Design épuré avec animations et effets visuels  
+<div align="center">
 
-### Étapes d'utilisation
+![Odoo](https://img.shields.io/badge/Odoo-18.0-714B67?style=for-the-badge&logo=odoo&logoColor=white)
+![License](https://img.shields.io/badge/License-LGPL--3-blue?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Active-success?style=for-the-badge)
+![Version](https://img.shields.io/badge/Version-1.0.0-orange?style=for-the-badge)
 
-**1**  
-<p align="center">
-  <img width="337" height="312" alt="Step 1" src="https://github.com/user-attachments/assets/bbe83434-d142-46ac-a09d-e9cb205deefe" />
-</p>
+*Module de recrutement moderne avec authentification obligatoire et portail candidat*
 
-**2**  
-<p align="center">
-  <img width="611" height="355" alt="Step 2" src="https://github.com/user-attachments/assets/19dffa2b-2f03-4dc5-a506-98482550748a" />
-</p>
-
-**3**  
-<p align="center">
-  <img width="611" height="355" alt="Step 3" src="https://github.com/user-attachments/assets/bf63a5d5-993f-40bc-941b-a51f6afa82f0" />
-</p>
+</div>
 
 ---
 
-# 🌍 Changement de langue
+## 🚀 Vue d'ensemble
 
-**1**  
-<p align="center">
-  <img width="361" height="188" alt="Language Change Step 1" src="https://github.com/user-attachments/assets/6d90735f-b9ff-4c94-9250-5587c0cbb4ea" />
-</p>
+Ce module de recrutement transforme l'expérience de candidature sur votre site Odoo en proposant une interface moderne, sécurisée et intuitive pour les candidats.
 
-**2**  
-<p align="center">
-  <img width="796" height="242" alt="Language Change Step 2" src="https://github.com/user-attachments/assets/b0e63a30-cdb6-473c-b0ea-b5bc2fed2558" />
-</p>
+### ✨ Points forts
 
+- 🔐 **Sécurité renforcée** - Authentification obligatoire pour toutes les candidatures
+- 🎨 **Interface moderne** - Design responsive et élégant
+- 📊 **Suivi en temps réel** - Tableau de bord candidat personnalisé
+- 🛠️ **Gestion flexible** - Modification des candidatures selon le statut
 
 ---
 
-# 🔐 Authentification pour Candidature
+## 🎯 Fonctionnalités principales
 
-**1**  
+<table>
+<tr>
+<td width="33%" align="center">
 
-<p align="center">
-  <img width="1871" height="931" alt="Authentication Step 2" src="https://github.com/user-attachments/assets/9be9af8b-4e5c-498d-8fd1-2087d7ed4c9e" />
-</p>
+### 🌐 Interface Publique
+- Interface candidat responsive
+- Design moderne avec animations
+- Expérience utilisateur optimisée
+- Compatible tous appareils
 
+</td>
+<td width="33%" align="center">
 
-**2**  
+### 📝 Gestion Candidatures
+- Candidature en ligne sécurisée
+- Suivi de statut en temps réel
+- Modification conditionnelle
+- Historique complet
 
-<p align="center">
-  <img width="1879" height="946" alt="Authentication Step 1" src="https://github.com/user-attachments/assets/a4eb8d48-0c0b-4eef-935c-aeccdb0d0aef" />
-</p>
+</td>
+<td width="33%" align="center">
 
----
+### 👤 Profil Candidat
+- Création de profil personnalisé
+- Gestion des informations
+- Portail dédié candidat
+- Tableau de bord intuitif
 
-## 🚀 Installation et Configuration
-
-📥 **Étape 1 : Installation du module**  
-📁 Placez le dossier du module dans votre répertoire `addons/`  
-🔄 Redémarrez votre serveur Odoo  
-🎯 Allez dans **Applications** → Recherchez **"Custom Job Redirect"**  
-⬇️ Cliquez sur **Installer**  
-
----
-
-🍪 **Étape 2 : Activation des cookies**  
-Pour que la redirection fonctionne correctement, il est essentiel d'activer les cookies :  
-
-🎛️ Allez dans **Configuration → Site Web → Paramètres**  
-📑 Dans l'onglet **Fonctionnalités**, activez l'option **Cookies**  
-
-<p align="center">
-  <img width="1879" height="946" alt="Cookies Setting" src="https://github.com/user-attachments/assets/e9824525-5c47-4c50-8d57-c512ada95786" />
-</p>
-
-⚠️ *Important : Sans les cookies activés, la session utilisateur ne peut pas être maintenue et la redirection ne fonctionnera pas correctement.*  
+</td>
+</tr>
+</table>
 
 ---
 
-👥 **Étape 3 : Activation du Compte Client**  
-Pour permettre aux visiteurs de créer des comptes et de se connecter :  
+## 📦 Modules inclus
 
-🎛️ Allez dans **Configuration → Site Web → Paramètres**  
-📑 Dans l'onglet **Fonctionnalités**, activez l'option **Compte Client**  
+### 1️⃣ `recrutement_auth` - Authentification Obligatoire
 
-<p align="center">
-  <img width="1879" height="946" alt="Client Account Setting" src="https://github.com/user-attachments/assets/93d96f57-7430-4798-b704-fc274c43ff4e" />
-</p>
+> 🔐 **Sécurité avant tout** - Les candidats doivent être connectés pour postuler
 
-Cette option permet aux utilisateurs de :  
-- 🆕 Créer un compte depuis la page de connexion  
-- 👤 Gérer leur profil  
-- 📋 Suivre leurs candidatures  
+**Fonctionnalités :**
+- ✅ Redirection automatique vers login
+- ✅ Session utilisateur sécurisée
+- ✅ Protection des données candidat
+- ✅ Intégration transparente
+
+### 2️⃣ `recrutement_portal` - Portail Candidature
+
+> 📊 **Tableau de bord candidat** - Interface dédiée pour gérer ses candidatures
+
+**Fonctionnalités :**
+- 📄 **Liste des candidatures** - Vue d'ensemble personnalisée
+- 🔍 **Détails complets** - Informations détaillées (poste, statut, date)
+- ✏️ **Modification conditionnelle** - Édition possible si statut "Nouveau"
+---
+
+## ⚙️ Installation & Configuration
+
+### 🔧 Prérequis
+
+Avant de commencer, assurez-vous d'avoir :
+
+- [ ] Odoo 18.0 installé
+- [ ] Accès administrateur
+- [ ] Modules `website` et `hr_recruitment` activés
+
+### 📥 Étape 1 : Installation des modules
+
+```bash
+# 1. Placez les dossiers dans custom_addons/
+custom_addons/
+├── recrutement_auth/
+└── recrutement_portal/
+# 2. Activez les modules via l'interface
+Applications → Rechercher → Installer
+```
+
+### 🍪 Étape 2 : Configuration des cookies
+
+> ⚠️ **Critique** : Sans cookies, la session utilisateur ne peut pas être maintenue
+
+**Chemin :** `Configuration → Site Web → Paramètres`
+
+<div align="center">
+<img src="https://github.com/user-attachments/assets/e9824525-5c47-4c50-8d57-c512ada95786" alt="Configuration Cookies" width="600"/>
+</div>
+
+✅ **Activez "Cookies"** dans les paramètres du site web
+
+### 👥 Étape 3 : Activation du compte client
+
+**Chemin :** `Configuration → Site Web → Paramètres → Onglet Fonctionnalités`
+
+<div align="center">
+<img src="https://github.com/user-attachments/assets/93d96f57-7430-4798-b704-fc274c43ff4e" alt="Compte Client" width="600"/>
+</div>
+
+**Cette option permet :**
+- 🆕 Création de compte depuis la connexion
+- 👤 Gestion du profil utilisateur
+- 📋 Suivi des candidatures personnalisé
+
+### 🌍 Étape 4 : Configuration de la langue
+
+> 🇫🇷 **Important** : Configurez le site en français pour la cohérence des statuts
+
+<div align="center">
+<table>
+<tr>
+<td align="center">
+<img src="https://github.com/user-attachments/assets/df7c54b0-9922-4c91-8806-e018e23abb64" alt="Langue Étape 1" width="300"/>
+<br><strong>Étape 1</strong>
+</td>
+<td align="center">
+<img src="https://github.com/user-attachments/assets/b0e63a30-cdb6-473c-b0ea-b5bc2fed2558" alt="Langue Étape 2" width="400"/>
+<br><strong>Étape 2</strong>
+</td>
+</tr>
+</table>
+</div>
+
+### 🗂️ Étape 5 : Ajout du menu "Mes Candidatures"
+
+**Chemin :** `Site Web → Éditer le menu`
+
+<div align="center">
+<table>
+<tr>
+<td align="center">
+<img src="https://github.com/user-attachments/assets/bbe83434-d142-46ac-a09d-e9cb205deefe" alt="Menu Étape 1" width="250"/>
+<br><strong>Créer l'élément</strong>
+</td>
+<td align="center">
+<img src="https://github.com/user-attachments/assets/19dffa2b-2f03-4dc5-a506-98482550748a" alt="Menu Étape 2" width="300"/>
+<br><strong>Configurer le nom</strong>
+</td>
+<td align="center">
+<img src="https://github.com/user-attachments/assets/bf63a5d5-993f-40bc-941b-a51f6afa82f0" alt="Menu Étape 3" width="300"/>
+<br><strong>Définir l'URL</strong>
+</td>
+</tr>
+</table>
+</div>
+
+**Configuration :**
+- 📝 **Nom :** `Mes Candidatures`
+- 🔗 **URL :** `/candidate/applications`
 
 ---
 
-## 📁 Structure du module
+## 📁 Architecture du projet
 
-```plaintext
-custom_job_redirect/
-├── __init__.py
-├── __manifest__.py
-├── controllers/
-│   ├── __init__.py
-│   └── main.py
-└── README.md
+```
+custom_addons/
+│
+├── 🔐 recrutement_auth/              # Module d'authentification
+│   ├── 📄 __init__.py
+│   ├── 📋 __manifest__.py
+│   └── 🎮 controllers/
+│       └── 🔧 main.py
+│
+└── 📊 recrutement_portal/            # Module portail candidat
+    ├── 📄 __init__.py
+    ├── 📋 __manifest__.py
+    └── 🎮 controllers/
+        └── 🔧 main.py
+    └── 🎮 views/
+        └── 🔧 menu.xml
+        └── 🔧 templates.xml
 ```
 
 ---
 
-## 🔄 Compatibilité
-✅ Odoo 18.0
+## 🔄 Workflow candidat
+
+```mermaid
+graph LR
+    A[🌐 Visite site] --> B{👤 Connecté?}
+    B -->|Non| C[🔐 Redirection login]
+    B -->|Oui| D[📝 Candidature]
+    C --> E[✍️ Création compte]
+    E --> D
+    D --> F[📊 Suivi candidature]
+    F --> G{📋 Statut}
+    G -->|Nouveau| H[✏️ Modification possible]
+    G -->|Autres| I[📖 Lecture seule]
+```
 
 ---
 
-## 🆘 Support
-Pour toute question ou problème :
+## ✅ Liste de vérification post-installation
 
-✅ Vérifiez que toutes les étapes de configuration sont complétées  
-🔍 Vérifiez la compatibilité avec votre version d'Odoo
+- [ ] Modules installés et activés
+- [ ] Cookies activés dans les paramètres du site
+- [ ] Compte client activé
+- [ ] Langue configurée en français
+- [ ] Menu "Mes Candidatures" ajouté
+- [ ] Test de candidature effectué
+- [ ] Vérification du portail candidat
 
 ---
 
-## 📄 Licence
-Ce module est distribué sous licence LGPL-3.
+
+
+## 🔗 Compatibilité & Versions
+
+| Composant | Version | Statut |
+|-----------|---------|--------|
+| ![Odoo](https://img.shields.io/badge/Odoo-18.0-714B67) | 18.0 | ✅ Testé |
+| ![Python](https://img.shields.io/badge/Python-3.8+-3776AB) | 3.8+ | ✅ Compatible |
+| ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-12+-4169E1) | 12+ | ✅ Recommandé |
 
 ---
 
-## 📌 Note
-Ce module modifie le comportement standard d'Odoo pour les candidatures. Assu-vous de tester en environnement de développement avant de déployer en production.
+
+
+## 📄 Licence & Contributions
+
+<div align="center">
+
+![LGPL-3](https://img.shields.io/badge/License-LGPL--3-blue?style=for-the-badge)
+
+Ce module est distribué sous licence **LGPL-3**.
+
+
+</div>
+
+
+
+
