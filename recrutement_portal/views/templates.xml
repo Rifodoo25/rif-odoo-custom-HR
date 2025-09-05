@@ -352,44 +352,162 @@
                         transform: rotate(90deg) scale(1.1);
                     }
 
-                    .modal-modern .modal-content {
-                        border-radius: 20px;
-                        border: none;
-                        box-shadow: var(--shadow-xl);
-                        overflow: hidden;
-                    }
+                    /* Enhanced modal styles with zoom support - REPLACE existing modal CSS */
+.modal-modern {
+    padding: 0 !important;
+}
 
-                    .modal-modern .modal-header {
-                        background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
-                        color: var(--light-text);
-                        border: none;
-                        padding: 2.5rem;
-                        position: relative;
-                        overflow: hidden;
-                    }
+.modal-modern .modal-dialog {
+    margin: 0;
+    max-width: none;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
 
-                    .modal-modern .modal-header::before {
-                        content: '';
-                        position: absolute;
-                        top: -50%;
-                        right: -20%;
-                        width: 200px;
-                        height: 200px;
-                        background: rgba(255, 255, 255, 0.1);
-                        border-radius: 50%;
-                    }
+.modal-modern .modal-content {
+    border-radius: 20px;
+    border: none;
+    box-shadow: var(--shadow-xl);
+    overflow: hidden;
+    max-width: 900px;
+    width: 100%;
+    max-height: calc(100vh - 40px);
+    display: flex;
+    flex-direction: column;
+}
 
-                    .modal-modern .modal-body {
-                        padding: 2.5rem;
-                        background: var(--card-bg);
-                    }
+.modal-modern .modal-header {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+    color: var(--light-text);
+    border: none;
+    padding: 2.5rem;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+}
 
-                    .modal-modern .modal-footer {
-                        border: none;
-                        padding: 0 2.5rem 2.5rem 2.5rem;
-                        gap: 1rem;
-                        background: var(--card-bg);
-                    }
+.modal-modern .modal-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 200px;
+    height: 200px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+}
+
+.modal-modern .modal-body {
+    padding: 2.5rem;
+    background: var(--card-bg);
+    overflow-y: auto;
+    flex: 1;
+}
+
+.modal-modern .modal-footer {
+    border: none;
+    padding: 0 2.5rem 2.5rem 2.5rem;
+    gap: 1rem;
+    background: var(--card-bg);
+    flex-shrink: 0;
+}
+
+/* Zoom level detection - 125% zoom */
+@media screen and (min-resolution: 120dpi) and (max-resolution: 144dpi) {
+    .modal-modern .modal-dialog {
+        padding: 15px;
+    }
+    
+    .modal-modern .modal-content {
+        max-height: calc(100vh - 30px);
+    }
+    
+    .modal-modern .modal-body {
+        max-height: 60vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+}
+
+/* Zoom level detection - 150% zoom */
+@media screen and (min-resolution: 144dpi) {
+    .modal-modern .modal-dialog {
+        padding: 10px;
+    }
+    
+    .modal-modern .modal-content {
+        max-height: calc(100vh - 20px);
+    }
+    
+    .modal-modern .modal-body {
+        max-height: 50vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+}
+
+/* Viewport-based fallback for better compatibility */
+@media screen and (max-height: 800px) {
+    .modal-modern .modal-body {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+}
+
+@media screen and (max-height: 600px) {
+    .modal-modern .modal-body {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    
+    .modal-modern .modal-header {
+        padding: 1.5rem;
+    }
+    
+    .modal-modern .modal-footer {
+        padding: 1rem 1.5rem;
+    }
+    
+    .form-control-modern {
+        padding: 10px 14px;
+        font-size: 0.9rem;
+    }
+    
+    .form-label {
+        font-size: 0.85rem;
+        margin-bottom: 0.25rem;
+    }
+}
+
+/* Custom scrollbar styling for better UX */
+.modal-modern .modal-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-modern .modal-body::-webkit-scrollbar-track {
+    background: #f1f3f4;
+    border-radius: 4px;
+}
+
+.modal-modern .modal-body::-webkit-scrollbar-thumb {
+    background: #c1c8cd;
+    border-radius: 4px;
+}
+
+.modal-modern .modal-body::-webkit-scrollbar-thumb:hover {
+    background: #a8b2ba;
+}
+
+/* Firefox scrollbar styling */
+.modal-modern .modal-body {
+    scrollbar-width: thin;
+    scrollbar-color: #c1c8cd #f1f3f4;
+}
 
                     .form-control-modern {
                         border-radius: 10px;
@@ -752,21 +870,21 @@
                     <!-- Content Wrapper -->
                     <div class="content-wrapper">
                         <!-- Messages -->
-                        <t t-call="new_page.message_alert_template"/>
+                        <t t-call="recrutement_portal.message_alert_template"/>
                         
                         <!-- Applications Content -->
                         <t t-if="not applicants">
-                            <t t-call="new_page.empty_applications_template"/>
+                            <t t-call="recrutement_portal.empty_applications_template"/>
                         </t>
                         <t t-else="">
-                            <t t-call="new_page.applications_grid_template"/>
+                            <t t-call="recrutement_portal.applications_grid_template"/>
                         </t>
                     </div>
                 </div>
             </div>
             
             <!-- Modification Modal -->
-            <t t-call="new_page.modify_application_modal_template"/>
+            <t t-call="recrutement_portal.modify_application_modal_template"/>
             
             <!-- JavaScript -->
             <script>
@@ -911,7 +1029,7 @@
                             
                             <!-- Status -->
                             <div class="mb-3">
-                                <t t-call="new_page.status_badge_template">
+                                <t t-call="recrutement_portal.status_badge_template">
                                     <t t-set="stage_name" t-value="applicant.stage_id.name"/>
                                 </t>
                             </div>
@@ -925,7 +1043,7 @@
                         
                         <!-- Actions -->
                         <div class="card-footer">
-                            <t t-call="new_page.application_actions_template">
+                            <t t-call="recrutement_portal.application_actions_template">
                                 <t t-set="applicant" t-value="applicant"/>
                             </t>
                         </div>
@@ -1349,45 +1467,160 @@
                         left: 100%;
                     }
 
-                    /* Modal Styles */
-                    .modal-modern .modal-content {
-                        border-radius: 20px;
-                        border: none;
-                        box-shadow: var(--shadow-xl);
-                        overflow: hidden;
-                    }
+                    .modal-modern {
+    padding: 0 !important;
+}
 
-                    .modal-modern .modal-header {
-                        background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
-                        color: var(--light-text);
-                        border: none;
-                        padding: 2.5rem;
-                        position: relative;
-                        overflow: hidden;
-                    }
+.modal-modern .modal-dialog {
+    margin: 0;
+    max-width: none;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
 
-                    .modal-modern .modal-header::before {
-                        content: '';
-                        position: absolute;
-                        top: -50%;
-                        right: -20%;
-                        width: 200px;
-                        height: 200px;
-                        background: rgba(255, 255, 255, 0.1);
-                        border-radius: 50%;
-                    }
+.modal-modern .modal-content {
+    border-radius: 20px;
+    border: none;
+    box-shadow: var(--shadow-xl);
+    overflow: hidden;
+    max-width: 900px;
+    width: 100%;
+    max-height: calc(100vh - 40px);
+    display: flex;
+    flex-direction: column;
+}
 
-                    .modal-modern .modal-body {
-                        padding: 2.5rem;
-                        background: var(--card-bg);
-                    }
+.modal-modern .modal-header {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+    color: var(--light-text);
+    border: none;
+    padding: 2.5rem;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+}
 
-                    .modal-modern .modal-footer {
-                        border: none;
-                        padding: 0 2.5rem 2.5rem 2.5rem;
-                        gap: 1rem;
-                        background: var(--card-bg);
-                    }
+.modal-modern .modal-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 200px;
+    height: 200px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+}
+
+.modal-modern .modal-body {
+    padding: 2.5rem;
+    background: var(--card-bg);
+    overflow-y: auto;
+    flex: 1;
+}
+
+.modal-modern .modal-footer {
+    border: none;
+    padding: 0 2.5rem 2.5rem 2.5rem;
+    gap: 1rem;
+    background: var(--card-bg);
+    flex-shrink: 0;
+}
+
+/* Zoom level detection - 125% zoom */
+@media screen and (min-resolution: 120dpi) and (max-resolution: 144dpi) {
+    .modal-modern .modal-dialog {
+        padding: 15px;
+    }
+    
+    .modal-modern .modal-content {
+        max-height: calc(100vh - 30px);
+    }
+    
+    .modal-modern .modal-body {
+        max-height: 60vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+}
+
+/* Zoom level detection - 150% zoom */
+@media screen and (min-resolution: 144dpi) {
+    .modal-modern .modal-dialog {
+        padding: 10px;
+    }
+    
+    .modal-modern .modal-content {
+        max-height: calc(100vh - 20px);
+    }
+    
+    .modal-modern .modal-body {
+        max-height: 50vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+}
+
+/* Viewport-based fallback */
+@media screen and (max-height: 800px) {
+    .modal-modern .modal-body {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+}
+
+@media screen and (max-height: 600px) {
+    .modal-modern .modal-body {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    
+    .modal-modern .modal-header {
+        padding: 1.5rem;
+    }
+    
+    .modal-modern .modal-footer {
+        padding: 1rem 1.5rem;
+    }
+    
+    .form-control-modern {
+        padding: 10px 14px;
+        font-size: 0.9rem;
+    }
+    
+    .form-label {
+        font-size: 0.85rem;
+        margin-bottom: 0.25rem;
+    }
+}
+
+/* Custom scrollbar styling */
+.modal-modern .modal-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-modern .modal-body::-webkit-scrollbar-track {
+    background: #f1f3f4;
+    border-radius: 4px;
+}
+
+.modal-modern .modal-body::-webkit-scrollbar-thumb {
+    background: #c1c8cd;
+    border-radius: 4px;
+}
+
+.modal-modern .modal-body::-webkit-scrollbar-thumb:hover {
+    background: #a8b2ba;
+}
+
+.modal-modern .modal-body {
+    scrollbar-width: thin;
+    scrollbar-color: #c1c8cd #f1f3f4;
+}
 
                     .form-control-modern {
                         border-radius: 10px;
@@ -1592,7 +1825,7 @@
                             <div class="col-md-6">
                                 <div class="detail-section">
                                     <h6>Statut</h6>
-                                    <t t-call="new_page.status_badge_template">
+                                    <t t-call="recrutement_portal.status_badge_template">
                                         <t t-set="stage_name" t-value="applicant.stage_id.name"/>
                                     </t>
                                 </div>
@@ -1840,4 +2073,6 @@
             </script>
         </t>
     </template>
+
+    
 </odoo>
