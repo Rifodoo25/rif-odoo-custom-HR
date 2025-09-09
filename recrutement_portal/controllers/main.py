@@ -228,7 +228,7 @@ class CandidatePortal(http.Controller):
             }
             
             return self._render_template_with_fallback(
-                'new_page.candidate_applications_template',
+                'recrutement_portal.candidate_applications_template',
                 values,
                 self._generate_applications_fallback_html
             )
@@ -273,7 +273,7 @@ class CandidatePortal(http.Controller):
                 """
             
             return self._render_template_with_fallback(
-                'new_page.application_detail_template',
+                'recrutement_portal.application_detail_template',
                 values,
                 fallback_html
             )
@@ -345,38 +345,65 @@ class CandidatePortal(http.Controller):
 
 
 class CustomWebsiteHrRecruitment(WebsiteHrRecruitment):
-    
+
     @http.route([
         '/jobs/apply/<model("hr.job"):job>',
         '/jobs/apply/<model("hr.job"):job>/<string:slug>'
-    ], type='http', auth="public", website=True, sitemap=False)
+    ], type='http', auth="public", website=True, sitemap=False, methods=['GET', 'POST'])
     def jobs_apply(self, job, **kwargs):
         """Override job application route with authentication and duplicate checks"""
         _logger.info(f"Job apply request for job {job.id} - {job.name}")
-        
-        # Check authentication
-        if request.env.user._is_public():
-            current_url = request.httprequest.url
-            redirect_url = f'/web/login?redirect={current_url}'
-            _logger.info(f"Redirecting unauthenticated user to: {redirect_url}")
-            return request.redirect(redirect_url)
-        
-        # Check for existing active applications
-        partner = request.env.user.partner_id
-        existing_applicant = request.env['hr.applicant'].sudo().search([
-            ('partner_id', '=', partner.id),
-            ('job_id', '=', job.id),
-            ('stage_id.fold', '=', False)  # Active applications only
-        ], limit=1)
-        
-        if existing_applicant:
-            request.session['application_message'] = {
-                'type': 'warning',
-                'message': f'You already have an active application for "{job.name}". '
-                          'You cannot apply again while your current application is in progress.'
-            }
-            return request.redirect('/candidate/applications')
-        
-        # Proceed with normal application flow
-        _logger.info("User authenticated and eligible, proceeding with application")
-        return super().jobs_apply(job=job, **kwargs)
+
+        # Handle GET request - show application form
+        if request.httprequest.method == 'GET':
+            # Check authentication for GET
+            if request.env.user._is_public():
+                current_url = request.httprequest.url
+                redirect_url = f'/web/login?redirect={current_url}'
+                _logger.info(f"Redirecting unauthenticated user to: {redirect_url}")
+                return request.redirect(redirect_url)
+
+            # Check for existing active applications
+            partner = request.env.user.partner_id
+            existing_applicant = request.env['hr.applicant'].sudo().search([
+                '|', '|',
+                ('partner_id', '=', partner.id),
+                ('email_from', '=', request.env.user.email),
+                ('email_from', '=', partner.email),
+                ('job_id', '=', job.id),
+                ('stage_id.fold', '=', False)  # Active applications only
+            ], limit=1)
+
+            if existing_applicant:
+                request.session['application_message'] = {
+                    'type': 'warning',
+                    'message': f'You already have an active application for "{job.name}". '
+                              'You cannot apply again while your current application is in progress.'
+                }
+                return request.redirect('/candidate/applications')
+
+        # Call parent method for both GET and POST
+        response = super().jobs_apply(job=job, **kwargs)
+
+        # Handle POST request - after application submission
+        if request.httprequest.method == 'POST' and not request.env.user._is_public():
+            try:
+                partner = request.env.user.partner_id
+
+                # Find the newly created application and link it to the partner
+                recent_applicant = request.env['hr.applicant'].sudo().search([
+                    ('job_id', '=', job.id),
+                    '|',
+                    ('email_from', '=', request.env.user.email),
+                    ('email_from', '=', partner.email),
+                    ('create_date', '>=', fields.Datetime.now() - timedelta(minutes=5))
+                ], order='create_date desc', limit=1)
+
+                if recent_applicant and not recent_applicant.partner_id:
+                    recent_applicant.write({'partner_id': partner.id})
+                    _logger.info(f"Linked new application {recent_applicant.id} to partner {partner.id}")
+
+            except Exception as e:
+                _logger.error(f"Error linking application to partner: {str(e)}")
+
+        return response
